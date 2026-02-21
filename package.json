@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@vercel/analytics": "^1.6.1",
     "ndc2021a-batch-directory": "link:",
     "next": "^15.0.0",
     "react": "^19.0.0",
