@@ -13,14 +13,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="bg-gray-50">
-        <nav className="bg-white shadow-md sticky top-0 z-50">
-          <div className="max-w-7xl mx-auto px-4 py-4">
-            <h1 className="text-2xl font-bold text-gold">
-              NDC 2021 Group A
-            </h1>
-            <p className="text-gray-600 text-sm">Batch Directory</p>
+    <html lang="en" className="scroll-smooth">
+      <body className="bg-slate-50 text-slate-900 antialiased selection:bg-gold/30">
+        <nav className="sticky top-0 z-50 backdrop-blur-md bg-white/70 border-b border-slate-200/60">
+          <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-xl font-black tracking-tighter text-slate-900">
+                NDC<span className="text-gold">21A</span>
+              </span>
+            </div>
           </div>
         </nav>
         {children}
