@@ -15,7 +15,7 @@ export default async function Home() {
           Welcome to the official directory for Notre Dame College Batch 2021 Group A. This site is a community&#39;driven project to help you connect with your classmates, discover their backgrounds, and stay in touch.
         </p>
         <p className="text-md text-gray-500 mb-2">
-          - Browse all 132 members (even if they haven't filled out their profile yet)
+          - Browse all 132 members (even if they haven&#39;t filled out their profile yet)
           <br />- Click a profile to see more details, contact info, and social links
           <br />- Data is managed securely via Google Forms & Sheets
         </p>
