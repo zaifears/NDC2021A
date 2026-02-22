@@ -1,4 +1,4 @@
-import { profiles } from "@/data/profiles";
+import { getProfileById } from "@/lib/sheets";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -10,7 +10,7 @@ interface ProfilePageProps {
 
 export default async function ProfilePage({ params }: ProfilePageProps) {
   const { id } = await params;
-  const profile = profiles.find((p) => p.id === id);
+  const profile = await getProfileById(id);
 
   if (!profile) {
     notFound();

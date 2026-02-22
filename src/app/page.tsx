@@ -1,7 +1,9 @@
 import ProfileCard from "@/components/ProfileCard";
-import { profiles } from "@/data/profiles";
+import { getProfiles } from "@/lib/sheets";
 
-export default function Home() {
+export default async function Home() {
+  const profiles = await getProfiles();
+
   return (
     <main className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 py-12">
