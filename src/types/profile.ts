@@ -6,4 +6,6 @@ export interface Profile {
   linkedin: string;
   image: string;
   description: string;
+  facebook: string;
+  lastUpdated: string;
 }

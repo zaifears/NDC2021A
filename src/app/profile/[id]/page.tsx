@@ -1,4 +1,5 @@
 import { getProfileById } from "@/lib/sheets";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -32,11 +33,14 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">
             {/* Image Section */}
             <div className="flex flex-col items-center justify-center">
-              <div className="w-64 h-64 rounded-lg overflow-hidden shadow-md bg-gray-200 mb-4">
-                <img
-                  src={profile.image}
+              <div className="w-64 h-64 rounded-lg overflow-hidden shadow-md bg-gray-200 mb-4 relative">
+                <Image
+                  src={profile.image || "/images/user.png"}
                   alt={profile.name}
-                  className="w-full h-full object-cover"
+                  fill
+                  sizes="256px"
+                  className="object-cover"
+                  priority
                 />
               </div>
               <p className="text-lg font-semibold text-gold">
@@ -81,19 +85,47 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                 </div>
 
                 {/* LinkedIn */}
-                <div>
-                  <p className="text-sm font-semibold text-gray-500 uppercase">
-                    LinkedIn
-                  </p>
-                  <a
-                    href={profile.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-lg text-primary hover:underline inline-flex items-center gap-2"
-                  >
-                    Visit Profile →
-                  </a>
-                </div>
+                {profile.linkedin && (
+                  <div className="border-b pb-4">
+                    <p className="text-sm font-semibold text-gray-500 uppercase">
+                      LinkedIn
+                    </p>
+                    <a
+                      href={profile.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-lg text-primary hover:underline inline-flex items-center gap-2"
+                    >
+                      Visit Profile →
+                    </a>
+                  </div>
+                )}
+
+                {/* Facebook */}
+                {profile.facebook && (
+                  <div className="border-b pb-4">
+                    <p className="text-sm font-semibold text-gray-500 uppercase">
+                      Facebook
+                    </p>
+                    <a
+                      href={profile.facebook}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-lg text-primary hover:underline inline-flex items-center gap-2"
+                    >
+                      Visit Profile →
+                    </a>
+                  </div>
+                )}
+
+                {/* Last Updated */}
+                {profile.lastUpdated && (
+                  <div className="mt-6 pt-4 border-t">
+                    <p className="text-xs text-gray-400">
+                      Last updated: {new Date(profile.lastUpdated).toLocaleDateString()}
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
