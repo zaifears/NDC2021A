@@ -1,7 +1,7 @@
 
 <div align="center">
 
-  <img src="/workspaces/NDC2021A/public/badge.png" alt="NDC Badge" width="240" />
+  <img src="https://i.postimg.cc/RFmm10pB/badge.png" alt="NDC Badge" width="240" />
 
   <h1>NDC 2021 Group A — Batch Directory</h1>
 
