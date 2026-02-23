@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Sitemap: /sitemap.xml
+
+# Crawl-delay is optional; search engines may ignore it. Keep polite crawling.
+# Crawl-delay: 10

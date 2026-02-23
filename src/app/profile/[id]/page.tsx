@@ -2,11 +2,37 @@ import { getProfileById } from "@/lib/sheets";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 
 interface ProfilePageProps {
   params: Promise<{
     id: string;
   }>;
+}
+
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  const id = params.id;
+  const profile = await getProfileById(id);
+  if (!profile) {
+    return { title: "Profile - NDC 2021 Group A" };
+  }
+
+  const image = profile.image
+    ? `/api/image?u=${Buffer.from(profile.image).toString("base64")}`
+    : "/badge.png";
+
+  return {
+    title: `${profile.name} — NDC 2021 Group A`,
+    description: profile.description || `Profile of ${profile.name}, Notre Dame College Batch 2021 Group A.`,
+    openGraph: {
+      title: `${profile.name} — NDC 2021 Group A`,
+      description: profile.description || `Profile of ${profile.name}`,
+      images: [image],
+    },
+    twitter: {
+      card: "summary_large_image",
+    },
+  };
 }
 
 function formatDate(raw: string) {
@@ -43,7 +69,6 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   const proxiedImage = profile.image
     ? `/api/image?u=${Buffer.from(profile.image).toString("base64")}`
     : null;
-
   return (
     <main className="min-h-screen bg-gradient-to-b from-blue-50 to-gray-50">
       <div className="max-w-4xl mx-auto px-4 py-12 relative">
@@ -58,14 +83,35 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
         {/* Profile Card */}
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden ring-1 ring-slate-200">
+          {/* JSON-LD for better indexing by search engines and LLMs */}
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "Person",
+                name: profile.name,
+                image: proxiedImage ?? "/images/user.png",
+                description: profile.description || undefined,
+                alumniOf: {
+                  "@type": "CollegeOrUniversity",
+                  name: "Notre Dame College",
+                },
+                identifier: profile.id,
+              }),
+            }}
+          />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-10">
             {/* Image Section */}
             <div className="flex flex-col items-center justify-center">
               <div className="w-72 h-72 rounded-xl overflow-hidden shadow-lg bg-gray-200 mb-6 relative">
-                <img
+                <Image
                   src={proxiedImage ?? "/images/user.png"}
                   alt={profile.name}
+                  width={288}
+                  height={288}
                   className="object-cover w-full h-full"
+                  priority
                 />
               </div>
               <p className="text-lg font-semibold text-gold">

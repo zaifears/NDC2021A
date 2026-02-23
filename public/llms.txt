@@ -1,0 +1,13 @@
+# llms.txt — machine-readable guidance for LLMs and data harvesters
+# Format: simple key: value pairs (one per line)
+site: /
+version: 1
+name: NDC2021A Batch Directory
+description: Directory of Notre Dame College Batch 2021 Group A — public student profiles (ID, name, optional contact and social links submitted via form).
+profiles_index: /profiles.json
+schema: JSON-LD
+license: See repository: https://github.com/zaifears/NDC2021A
+contact: https://github.com/zaifears
+
+# If you plan to reuse data at scale, please respect the repository license
+# and contact the project owner via the GitHub link above.

@@ -10,6 +10,17 @@ export const metadata: Metadata = {
   },
 };
 
+// Add default Open Graph and Social metadata
+metadata.openGraph = {
+  title: metadata.title,
+  description: metadata.description,
+  images: ["/badge.png", "/ndc.svg"],
+};
+
+metadata.twitter = {
+  card: "summary_large_image",
+};
+
 export default function RootLayout({
   children,
 }: {
