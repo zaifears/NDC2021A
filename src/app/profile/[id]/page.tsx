@@ -4,12 +4,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
-interface ProfilePageProps {
-  params: Promise<{
-    id: string;
-  }>;
-}
-
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const id = params.id;
   const profile = await getProfileById(id);
@@ -56,8 +50,8 @@ function formatDate(raw: string) {
   return datePart;
 }
 
-export default async function ProfilePage({ params }: ProfilePageProps) {
-  const { id } = await params;
+export default async function ProfilePage({ params }: { params: { id: string } }) {
+  const { id } = params;
   const profile = await getProfileById(id);
 
   if (!profile) {
