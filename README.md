@@ -39,6 +39,7 @@
 ## Features
 
 - Minimal, fast homepage (no images) with a modern file-manager-like list view.
+- Enhanced visual polish: dynamic gradient monograms, taller list rows, frosted-glass search bar, and subtle fade-in/hover animations.
 - Detailed profile pages with contact cards and social links.
 - Automatic Google Sheets polling (revalidate every ~60s) — no redeploy required after form submissions.
 - Google Drive and PostImage links supported for profile images; Drive links are normalized.
