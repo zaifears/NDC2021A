@@ -9,6 +9,27 @@ interface ProfilePageProps {
   }>;
 }
 
+function formatDate(raw: string) {
+  if (!raw) return "";
+  // Try native Date parsing first (handles ISO and many formats)
+  const parsed = Date.parse(raw);
+  if (!isNaN(parsed)) {
+    const d = new Date(parsed);
+    return d.toISOString().slice(0, 10);
+  }
+
+  // Match common dd/MM/yyyy or dd/MM/yyyy HH:mm:ss
+  const m = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (m) {
+    const [, dd, mm, yyyy] = m;
+    return `${yyyy}-${mm.padStart(2, "0")}-${dd.padStart(2, "0")}`;
+  }
+
+  // Fallback: return first token (could be yyyy-mm-dd)
+  const datePart = raw.split(" ")[0];
+  return datePart;
+}
+
 export default async function ProfilePage({ params }: ProfilePageProps) {
   const { id } = await params;
   const profile = await getProfileById(id);
@@ -17,30 +38,34 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     notFound();
   }
 
+  // Use a proxied image URL in the browser to avoid cross-host embedding
+  // restrictions from Drive/postimg. The API expects base64 in `u` param.
+  const proxiedImage = profile.image
+    ? `/api/image?u=${Buffer.from(profile.image).toString("base64")}`
+    : null;
+
   return (
-    <main className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Back Button */}
+    <main className="min-h-screen bg-gradient-to-b from-blue-50 to-gray-50">
+      <div className="max-w-4xl mx-auto px-4 py-12 relative">
+        {/* Back Button - modern style, sticky on desktop */}
         <Link
           href="/"
-          className="inline-flex items-center text-primary hover:text-blue-700 mb-6 font-semibold"
+          className="inline-flex items-center gap-2 text-slate-800 hover:text-slate-900 font-semibold bg-white/90 backdrop-blur-sm rounded-full px-4 py-2 shadow transition-colors absolute lg:fixed lg:top-4 lg:left-4 lg:mb-0 lg:bg-white/90 lg:backdrop-blur-sm lg:px-4 lg:py-2 lg:shadow lg:gap-2 lg:rounded-full lg:text-slate-800 lg:hover:text-slate-900 lg:font-semibold lg:transition-colors"
         >
-          ← Back to Directory
+          <span className="text-lg">←</span>
+          <span className="hidden lg:inline">Back to Directory</span>
         </Link>
 
         {/* Profile Card */}
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">
+        <div className="bg-white rounded-2xl shadow-xl overflow-hidden ring-1 ring-slate-200">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-10">
             {/* Image Section */}
             <div className="flex flex-col items-center justify-center">
-              <div className="w-64 h-64 rounded-lg overflow-hidden shadow-md bg-gray-200 mb-4 relative">
-                <Image
-                  src={profile.image || "/images/user.png"}
+              <div className="w-72 h-72 rounded-xl overflow-hidden shadow-lg bg-gray-200 mb-6 relative">
+                <img
+                  src={proxiedImage ?? "/images/user.png"}
                   alt={profile.name}
-                  fill
-                  sizes="256px"
-                  className="object-cover"
-                  priority
+                  className="object-cover w-full h-full"
                 />
               </div>
               <p className="text-lg font-semibold text-gold">
@@ -50,9 +75,14 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
             {/* Details Section */}
             <div>
-              <h1 className="text-4xl font-bold text-gold mb-2">
+              <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gold to-darkGold mb-2">
                 {profile.name}
               </h1>
+              {profile.lastUpdated && (
+                <p className="text-sm text-slate-500 mb-2">
+                  Last updated: {formatDate(profile.lastUpdated)}
+                </p>
+              )}
               <p className="text-gray-600 mb-6 leading-relaxed">
                 {profile.description || "No description provided yet."}
               </p>
@@ -66,7 +96,13 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                     className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 hover:bg-blue-50 transition-all border border-slate-100 hover:border-blue-200 group"
                   >
                     <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform p-2.5">
-                      <img src="/images/mail.png" alt="Email" className="w-full h-full object-contain" />
+                      <Image
+                        src="/images/mail.png"
+                        alt="Email"
+                        width={24}
+                        height={24}
+                        className="w-full h-full object-contain"
+                      />
                     </div>
                     <div className="overflow-hidden text-left">
                       <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">Email</p>
@@ -76,7 +112,13 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                 ) : (
                   <div className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50/50 border border-slate-100 opacity-70">
                     <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center flex-shrink-0 p-2.5">
-                      <img src="/images/mail.png" alt="Email" className="w-full h-full object-contain grayscale opacity-40" />
+                      <Image
+                        src="/images/mail.png"
+                        alt="Email"
+                        width={24}
+                        height={24}
+                        className="w-full h-full object-contain grayscale opacity-40"
+                      />
                     </div>
                     <div className="overflow-hidden text-left">
                       <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">Email</p>
@@ -92,7 +134,13 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                     className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 hover:bg-blue-50 transition-all border border-slate-100 hover:border-blue-200 group"
                   >
                     <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform p-2.5">
-                      <img src="/images/phone.png" alt="Phone" className="w-full h-full object-contain" />
+                      <Image
+                        src="/images/phone.png"
+                        alt="Phone"
+                        width={24}
+                        height={24}
+                        className="w-full h-full object-contain"
+                      />
                     </div>
                     <div className="overflow-hidden text-left">
                       <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">Phone</p>
@@ -102,7 +150,13 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                 ) : (
                   <div className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50/50 border border-slate-100 opacity-70">
                     <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center flex-shrink-0 p-2.5">
-                      <img src="/images/phone.png" alt="Phone" className="w-full h-full object-contain grayscale opacity-40" />
+                      <Image
+                        src="/images/phone.png"
+                        alt="Phone"
+                        width={24}
+                        height={24}
+                        className="w-full h-full object-contain grayscale opacity-40"
+                      />
                     </div>
                     <div className="overflow-hidden text-left">
                       <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">Phone</p>
@@ -120,7 +174,13 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                     className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 hover:bg-blue-50 transition-all border border-slate-100 hover:border-blue-200 group"
                   >
                     <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform p-2.5">
-                      <img src="/images/linkedin.png" alt="LinkedIn" className="w-full h-full object-contain" />
+                      <Image
+                        src="/images/linkedin.png"
+                        alt="LinkedIn"
+                        width={24}
+                        height={24}
+                        className="w-full h-full object-contain"
+                      />
                     </div>
                     <div className="overflow-hidden text-left">
                       <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">LinkedIn</p>
@@ -130,7 +190,13 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                 ) : (
                   <div className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50/50 border border-slate-100 opacity-70">
                     <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center flex-shrink-0 p-2.5">
-                      <img src="/images/linkedin.png" alt="LinkedIn" className="w-full h-full object-contain grayscale opacity-40" />
+                      <Image
+                        src="/images/linkedin.png"
+                        alt="LinkedIn"
+                        width={24}
+                        height={24}
+                        className="w-full h-full object-contain grayscale opacity-40"
+                      />
                     </div>
                     <div className="overflow-hidden text-left">
                       <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">LinkedIn</p>
@@ -148,7 +214,13 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                     className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 hover:bg-blue-50 transition-all border border-slate-100 hover:border-blue-200 group"
                   >
                     <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform text-xl">
-                      🌐
+                          <Image
+                        src="/images/facebook.svg"
+                        alt="Facebook"
+                        width={24}
+                        height={24}
+                        className="w-full h-full object-contain"
+                          />
                     </div>
                     <div className="overflow-hidden text-left">
                       <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">Facebook</p>
@@ -157,8 +229,14 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                   </a>
                 ) : (
                   <div className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50/50 border border-slate-100 opacity-70">
-                    <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center flex-shrink-0 text-xl grayscale opacity-40">
-                      🌐
+                    <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center flex-shrink-0 p-2.5 grayscale opacity-40">
+                      <Image
+                        src="/images/facebook.svg"
+                        alt="Facebook"
+                        width={24}
+                        height={24}
+                        className="w-full h-full object-contain"
+                      />
                     </div>
                     <div className="overflow-hidden text-left">
                       <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">Facebook</p>

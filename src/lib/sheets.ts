@@ -5,7 +5,7 @@ const GOOGLE_SHEET_ID = process.env.GOOGLE_SHEET_ID;
 const GOOGLE_SHEETS_API_KEY = process.env.GOOGLE_SHEETS_API_KEY;
 
 // Column order in the Google Sheet (Row 1 = header row):
-// A: Timestamp | B: Full College ID | C: Full Legal Name | D: Email | E: Phone | F: LinkedIn URL | G: Profile Image URL | H: Short Bio | I: Facebook Account URL
+// A: Timestamp | B: Full College ID | C: Full Legal Name | D: Email | E: Phone | F: LinkedIn URL | G: Short Bio | H: Facebook Account URL | I: Upload Your Image
 const SHEET_RANGE = "Form responses 1!A2:I"; // Skip header row, read all data rows
 
 /**
@@ -60,7 +60,24 @@ export async function getProfiles(): Promise<Profile[]> {
     const rows: string[][] = data.values ?? [];
 
     // Merge form responses on top of the base student list
-    for (const row of rows) {
+    // helper to convert certain hosted URLs into direct links
+  function normalizeImageUrl(raw: string): string {
+    if (!raw) return "";
+    // Google Drive preview/shared links -> direct viewable URL
+    // examples:
+    //   https://drive.google.com/file/d/FILEID/view?usp=sharing
+    //   https://drive.google.com/open?id=FILEID
+    //   https://drive.google.com/uc?id=FILEID&export=download
+    const driveRegex = /drive\.google\.com\/(?:file\/d\/([a-zA-Z0-9_-]+)|open\?id=([a-zA-Z0-9_-]+))/;
+    const match = raw.match(driveRegex);
+    if (match) {
+      const id = match[1] || match[2];
+      return `https://drive.google.com/uc?export=view&id=${id}`;
+    }
+    return raw.trim();
+  }
+
+  for (const row of rows) {
       const id = row[1]?.trim();
       if (!id) continue; // skip empty rows
 
@@ -70,9 +87,9 @@ export async function getProfiles(): Promise<Profile[]> {
         email: row[3]?.trim() ?? "",
         phone: row[4]?.trim() ?? "",
         linkedin: row[5]?.trim() ?? "",
-        image: row[6]?.trim() ?? "",
-        description: row[7]?.trim() ?? "",
-        facebook: row[8]?.trim() ?? "",
+        description: row[6]?.trim() ?? "",
+        facebook: row[7]?.trim() ?? "",
+        image: normalizeImageUrl(row[8] ?? ""),
         lastUpdated: row[0]?.trim() ?? "",
       });
     }

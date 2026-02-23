@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { Profile } from "@/types/profile";
 
@@ -11,14 +10,15 @@ export default function ProfileCard({ profile }: { profile: Profile }) {
         {/* Hover Top Border Accent */}
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-gold to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
         
-        <div className="aspect-square rounded-xl overflow-hidden bg-slate-100 relative mb-4">
-          <Image
-            src={profile.image || "/images/user.png"}
-            alt={profile.name}
-            fill
-            sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 20vw"
-            className="object-cover group-hover:scale-105 transition-transform duration-500"
-          />
+        {/* no image on homepage; show initials circle */}
+        <div className="aspect-square rounded-xl bg-slate-200 flex items-center justify-center mb-4">
+          <span className="text-xl font-bold text-slate-600">
+            {profile.name
+              .split(" ")
+              .map((w) => w[0])
+              .join("")
+              .slice(0, 2)}
+          </span>
         </div>
         <div className="space-y-1 text-center">
           <p className="text-xs font-mono text-gold font-bold tracking-widest">ID: {profile.id}</p>

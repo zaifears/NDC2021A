@@ -1,329 +1,99 @@
-# NDC 2021 Group A - Batch Directory
 
-A Next.js TypeScript web application for the Notre Dame College Batch 2021 Group A student directory.
+<div align="center">
+
+  <img src="/workspaces/NDC2021A/public/badge.png" alt="NDC Badge" width="240" />
+
+  <h1>NDC 2021 Group A — Batch Directory</h1>
+
+  <p class="lead">Community directory for Notre Dame College Batch 2021 Group A — built with Next.js, TypeScript, and Tailwind CSS.</p>
+
+  <br />
+
+  <!-- Badges -->
+  <a href="/">
+    <img src="https://img.shields.io/badge/Next.js-16-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="Next.js" />
+  </a>
+  <a href="/">
+    <img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React" />
+  </a>
+  <a href="/">
+    <img src="https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+  </a>
+  <a href="/">
+    <img src="https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
+  </a>
+
+</div>
+
+---
+
+## Quick summary
+
+- List-style homepage with instant search by name or ID.
+- Profile pages load full details and the user image (images are not loaded on the homepage).
+- Google Sheets integration with automatic merging against a base student list.
+- Proxy-based image fetching for better compatibility with Google Drive and other hosts.
+
+---
 
 ## Features
 
-- 📱 **Responsive Grid Layout** - Home page displays all 132 members with their image, ID, and name
-- 👤 **Detailed Profile Pages** - Click on any member to view their full profile with:
-  - Profile description
-  - Email address
-  - Phone number
-  - LinkedIn profile link
-  - Profile image
-- 🎨 **Modern UI** - Built with Tailwind CSS for a clean, professional look
-- ⚡ **Fast Performance** - Next.js App Router with TypeScript for type safety
-- 📦 **Easy Deployment** - Ready to deploy on Vercel
+- Minimal, fast homepage (no images) with a modern file-manager-like list view.
+- Detailed profile pages with contact cards and social links.
+- Automatic Google Sheets polling (revalidate every ~60s) — no redeploy required after form submissions.
+- Google Drive and PostImage links supported for profile images; Drive links are normalized.
+- Small `GET /api/image` proxy to stream allowed remote images to the browser.
 
-## Project Structure
+## Project structure (high level)
 
 ```
-├── src/
-│   ├── app/
-│   │   ├── layout.tsx          # Root layout with navigation
-│   │   ├── page.tsx            # Homepage with profile grid
-│   │   ├── globals.css         # Global styles
-│   │   └── profile/
-│   │       └── [id]/
-│   │           └── page.tsx    # Individual profile page
-│   ├── components/
-│   │   └── ProfileCard.tsx     # Profile card component
-│   ├── data/
-│   │   └── profiles.ts         # Profile data (add all 132 here)
-│   └── types/
-│       └── profile.ts          # TypeScript types
-├── package.json
-├── tsconfig.json
-├── tailwind.config.ts
-└── next.config.ts
+src/
+├─ app/
+│  ├─ layout.tsx
+│  ├─ page.tsx                 # Homepage (list + search)
+│  └─ profile/[id]/page.tsx    # Profile details
+├─ app/api/image/route.ts      # Image proxy
+├─ components/
+│  ├─ ProfileDirectory.tsx
+│  └─ ProfileCard.tsx
+├─ lib/sheets.ts               # Google Sheets fetch + normalization
+└─ data/profiles.ts            # Base fallback profiles
 ```
 
-## Getting Started
+## Setup & development
 
-### Prerequisites
-
-- Node.js 16+ (or your preferred version)
-- npm or yarn
-
-### Installation
-
-1. Navigate to the project directory:
 ```bash
+git clone https://github.com/zaifears/NDC2021A.git
 cd NDC2021A
-```
-
-2. Install dependencies:
-```bash
 pnpm install
-```
-
-3. Run the development server:
-```bash
 pnpm run dev
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser
+Open http://localhost:3000
 
-## Google Sheets Setup
+## Google Sheets / Google Form
 
-This section explains how to manage all 132 profiles using Google Sheets and Google Forms — **no code editing needed!**
+Create a Google Form that writes responses to a Sheet with the following header (Row 1):
 
-### How It Works
+| A: Timestamp | B: Full College ID | C: Full Legal Name | D: Email | E: Phone | F: LinkedIn URL | G: Short Bio | H: Facebook Account URL | I: Upload Your Image |
 
-```
-Google Form (students fill)  →  Google Sheet (data stored)  →  Next.js app (auto-fetches every 60 seconds)
-```
+- Use the shareable image link in column I (PostImage or Google Drive). Drive links must be shareable; the app normalizes common Drive URLs.
+- Set `GOOGLE_SHEET_ID` and `GOOGLE_SHEETS_API_KEY` in environment variables for production.
 
-- Students fill a **Google Form** with their info
-- Responses land in a **Google Sheet** automatically  
-- The website **fetches data from the Sheet every 60 seconds** (no redeploy needed!)
-- If the Sheet is unavailable, the app falls back to hardcoded data
+## Image proxy
 
----
+The proxy at `/api/image` accepts a base64 `u` parameter with the remote URL and streams back the remote image. Edit the host allowlist in `src/app/api/image/route.ts` to add additional hosts.
 
-### Step 1: Create the Google Sheet
+## Notes
 
-1. Go to [Google Sheets](https://docs.google.com/spreadsheets) and create a new spreadsheet
-2. Name it `NDC 2021A Profiles`
-3. Set up the **header row (Row 1)** with these exact columns:
+- `formatDate` in `src/app/profile/[id]/page.tsx` formats the Sheets timestamp to `YYYY-MM-DD` for display as "Last updated".
+- The global navbar was intentionally removed — the profile page has a sticky back button on desktop.
 
-| A         | B              | C              | D     | E     | F           | G                 | H        | I                  |
-| --------- | -------------- | -------------- | ----- | ----- | ----------- | ----------------- | -------- | ------------------ |
-| Timestamp | Full College ID | Full Legal Name | Email | Phone | LinkedIn URL | Profile Image URL | Short Bio | Facebook Account URL |
+## Deployment
 
-4. Fill in your data starting from **Row 2**
+Recommended: Vercel. Ensure environment variables are set for Google Sheets access.
 
-> **Note:**
-> - **Timestamp** is auto-generated by Google Forms (shows last updated time)
-> - **Full College ID, Full Legal Name, Email** are required
-> - **Phone, LinkedIn URL, Profile Image URL, Short Bio, Facebook Account URL** are optional
-> - Each profile row is preserved even if left incomplete
+## Credits
 
----
+Built and maintained by Md Al Shahoriar Hossain — https://zaifears.vercel.app (62101030)
 
-### Step 2: Create a Google Form with Dropdown List
-
-1. Go to [Google Forms](https://docs.google.com/forms) and create a new form
-2. Add these fields **in this exact order**:
-
-   - **Student ID** (**Dropdown**) — **Required** → select from the full list
-   - **Full Name** (**Dropdown**) — **Required** → will auto-populate based on Student ID
-   - **Email** (Short answer) — **Required**
-   - **Phone** (Short answer) — Optional
-   - **LinkedIn URL** (Short answer) — Optional
-   - **Profile Image URL** (Short answer) — Optional (use [PostImage](https://postimg.cc): upload → copy direct link → paste)
-   - **Short Bio / Description** (Paragraph) — Optional
-   - **Facebook Account URL** (Short answer) — Optional
-
-3. **Create the Student ID Dropdown:**
-   - Click on the Student ID field → **Dropdown**
-   - Click **"Add option"** and add these 132 IDs:
-   ```
-   62101001, 62101002, 62101003, 62101004, 62101005, 62101006, 62101007, 62101008, 62101009, 62101010,
-   62101011, 62101012, 62101013, 62101014, 62101015, 62101016, 62101017, 62101018, 62101019, 62101020,
-   62101021, 62101022, 62101023, 62101024, 62101025, 62101026, 62101027, 62101028, 62101029, 62101030,
-   62101031, 62101032, 62101033, 62101034, 62101035, 62101036, 62101037, 62101038, 62101039, 62101040,
-   62101041, 62101042, 62101043, 62101044, 62101045, 62101046, 62101047, 62101048, 62101049, 62101050,
-   62101051, 62101052, 62101053, 62101054, 62101055, 62101056, 62101057, 62101058, 62101059, 62101060,
-   62101061, 62101062, 62101063, 62101064, 62101065, 62101066, 62101067, 62101068, 62101069, 62101070,
-   62101071, 62101072, 62101073, 62101074, 62101075, 62101076, 62101077, 62101078, 62101079, 62101080,
-   62101081, 62101082, 62101083, 62101084, 62101085, 62101086, 62101087, 62101088, 62101089, 62101090,
-   62101091, 62101092, 62101093, 62101094, 62101095, 62101096, 62101097, 62101098, 62101099, 62101100,
-   62101101, 62101102, 62101103, 62101104, 62101105, 62101106, 62101107, 62101108, 62101109, 62101110,
-   62101111, 62101112, 62101113, 62101114, 62101115, 62101116, 62101117, 62101118, 62101119, 62101120,
-   62101121, 62101122, 62101123, 62101124, 62101125, 62101126, 62101127, 62101128, 62101129, 62101130,
-   62101131, 62101132
-   ```
-
-4. **Create the Full Name Dropdown with linked data:**
-   - Click on the Full Name field → **Dropdown**
-   - Click **"Add option"** and add these 132 names (paired with their IDs):
-   ```
-   Ullas Nokrek, Rahat Rahman, Arup Raihan, Atikul Islam Tuhin, Shehab Uddin Shuvo, 
-   Obaidullah Ibn Rofiq Arzo, Nafiz Imtiaz, Win Costa, Rofiqul Islam Sohan, Sarwar Hossain Khan,
-   Md. Athar Hossain Siam, Kazi Md. Ibrahim, Sakib Al Hasan, Abdullah Al Mahmud, Atiqur Rahman,
-   Mohammad Milon, Md Maruf Mizi, Kazi Alvee Rahman, Rai Myo Sing Marma, Leonard Biswas,
-   Ahammad Monower Musa, Nabib Arafah Tamim, Asaduzzaman Shafin, Shahadat Hossain Fahim, Shopnil Paul,
-   Meheraj Hossain Opy, Ashikur Rahman, Tasnim Hossain Khan, Nabil Ayman Zeeshan, Al Shahoriar Hossain,
-   Jojan Sarker Srabon, Hafijul Islam, Nuhael Kabir Omit, Aqeeb Mahmud, Jashim Uddin,
-   Anvy F Gomez, Mashrafi Zaman Reesan, Samir Raiyan Rafi, Shakil Rahman, Abdur Rahman Rafed,
-   Mahmudul Hasan Abir, Tanvir Kabir Sohan, Md Majharul Alam, Dales Ahmed Sakib, Uchai Mong Marma,
-   Samin Yasar, Shazid Khan, Anubhav Banik, Hasibur Rahman Soumik, Shahan Salehin Sayeem,
-   Salauddin Patowary, Swamitra Ghosh, Shahriar Khan, Farhan Siddique Dhrubo, Mohammad Abdullah,
-   Jeffrey Sylvester Gomez, Bin Hannan Sheikh, Md Tawfiq Nawaz Shawon, Azmain Nafi, Md Adib Ahnaf Mahir,
-   Rakib Hasan Rudro, Tanjil Priyo, Mobarok Karim, Mohammad Nahim Hossain, Samiul Arefin Labib,
-   Ismail Sheikh Sami, S Kabir Nahid, Nabil Khan, Tirak Sangma, Md. Shakib Ahmed,
-   Ruhul Karim, Md. Ebrahim, Niloy Karmokar, Sakib Ahmed Sany, Abir Hasan,
-   Asif Hasan, Tausif Ahmed Akib, Pronoy Saha, Jaka Yeas Zidan, Amit Walter Gomez,
-   Saleh Majid, Tanbir Uddin, Kawsar Uddin Karib, Jubayer Ali, Md. Rakib Hossain,
-   Barnabus Shudipto Rozario, Al Rohan Omi, Jahin Ahmed Jidan, Mijoy Ahmed Rafi, Asifur Rahman Sakib,
-   Saiduzzaman Utsho, Farhan Labib, Xubayer Alam, Nazmul Hasan Nayan, Jihad Hossain,
-   Pujon Majumder, Ashraful Haque, Md. Abidur Rahman, Tanmoy Biswas, Anik Devnath,
-   Abdullah Rakib, Mehedi Hasan Antu, Enamul Haque, Pujan Leonardo Rozario, Imtiaz Fahad,
-   Shyamol Hasdak, Tanvir Ahmed Prince, Mahim Hossain, Sumon Paul, Stephen Ornet Costa,
-   Md. Khairul Islam Mridha, Rashedujjaman Rashed, Mustak Hasan Sony, Tazrian Rahman, Aminur Rahman Abir,
-   Md. Omor Faruk Sabbir, Ariful Hasan Mahi, Anas Ferdous, Noor Alahi Antor, Pulock Francis,
-   Md. Nishat Howlader, Srijan Saha, Abeer Khondokar, Talha Adar Rashid, Md. Rakib-Ul-Hasan,
-   Shahriar Kabir Anik, Shimanta Debnath Badhun, Sanjid Bhuiyan, Avik Biswas, Mirza Mohammad Jihad,
-   Shudipto Das, Ariful Islam Faisal
-   ```
-
-5. Go to **Responses** tab → click the **Google Sheets** icon → create/link to your existing sheet
-6. The form will auto-create the correct columns that match your sheet structure
-
-> **Share the form link with your classmates** — they select their ID and name from dropdowns, fill in optional details, and submit. The sheet auto-populates!
-
----### Profile Image Hosting (PostImage)
-
-For the **Profile Image URL** field in your Google Form, you need direct image links. The easiest way is **PostImage**:
-
-1. Go to [https://postimg.cc/](https://postimg.cc/)
-2. Click **"Choose Image"** and select your image
-3. Click **"Upload"**
-4. Copy the **Direct Link** from the result page
-5. Paste it into your Google Form's **"Profile Image URL"** field
-
-**That's it!** No accounts, no settings, no confusing options. Each image gets a permanent link that never expires.
-
----
-
-### Step 3: Get a Google Sheets API Key
-
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project (or use existing one)
-3. Go to **APIs & Services** → **Library**
-4. Search for **"Google Sheets API"** and **enable** it
-5. Go to **APIs & Services** → **Credentials**
-6. Click **"Create Credentials"** → **"API Key"**
-7. Copy the API key
-8. **(Recommended)** Click **"Restrict Key"**:
-   - Under **API restrictions**, select **"Google Sheets API"** only
-   - Under **Application restrictions**, add your Vercel domain for security
-
----
-
-### Step 4: Make the Sheet Readable
-
-1. Open your Google Sheet
-2. Click **Share** → set to **"Anyone with the link"** (Viewer access)
-3. Copy the **Spreadsheet ID** from the URL:
-   ```
-   https://docs.google.com/spreadsheets/d/SPREADSHEET_ID_IS_HERE/edit
-   ```
-
----
-
-### Step 5: Set Environment Variables
-
-#### For Local Development
-
-Create/update `.env.local` in the project root:
-
-```env
-GOOGLE_SHEET_ID=your_spreadsheet_id_here
-GOOGLE_SHEETS_API_KEY=your_api_key_here
-```
-
-#### For Vercel (Production)
-
-1. Go to your [Vercel Dashboard](https://vercel.com/dashboard)
-2. Select your project → **Settings** → **Environment Variables**
-3. Add:
-   - `GOOGLE_SHEET_ID` = your spreadsheet ID
-   - `GOOGLE_SHEETS_API_KEY` = your API key
-4. **Redeploy** once after adding variables
-
----
-
-### Step 6: Test It!
-
-```bash
-pnpm dev
-```
-
-Open `http://localhost:3000` — profiles should load from Google Sheets.
-
----
-
-### How Updates Work
-
-- The app uses **ISR (Incremental Static Regeneration)** with 60-second revalidation
-- When someone adds/edits a row in the Sheet, the website updates **within 60 seconds**
-- **No code push or redeploy needed!**
-- To change the refresh interval, edit `revalidate` in `src/lib/sheets.ts`
-
----
-
-### Security Notes
-
-- The **API key** is server-side only (never exposed to browser)
-- The **Google Sheet** should have "Viewer" access (not "Editor")
-- Only you/admins should have edit access to the Google Form
-- API key is restricted to Google Sheets API only
-
----
-
-### Troubleshooting
-
-| Issue                        | Solution                                                                  |
-| ---------------------------- | ------------------------------------------------------------------------- |
-| No profiles showing          | Check env vars are set and Sheet is shared as "Viewer"                    |
-| API error 403                | Enable Google Sheets API in Cloud Console; check API key restrictions     |
-| Stale data                   | Wait 60 seconds or redeploy to force refresh                              |
-| Columns mismatched           | Ensure Sheet columns EXACTLY: Timestamp, Full College ID, Full Legal Name, Email, Phone, LinkedIn URL, Profile Image URL, Short Bio |
-| Fallback data showing        | Check terminal/server logs for error message                              |
-| Form responses not appearing | Verify form is linked to Sheet (check Responses → Sheet setup)            |
-
----
-
-## Deployment on Vercel
-
-1. Push your code to GitHub:
-```bash
-git add .
-git commit -m "Initial commit: NDC2021A batch directory with Google Sheets"
-git push origin main
-```
-
-2. Create a Vercel account at [vercel.com](https://vercel.com)
-
-3. Import your repository:
-   - Go to Vercel dashboard
-   - Click "New Project"
-   - Import the GitHub repository
-   - Click "Deploy"
-
-4. Add environment variables (see Step 5 above)
-
-5. Your site will be live at a Vercel URL (e.g., `ndc2021a.vercel.app`)
-
-## Customization
-
-### Change Colors
-Edit the colors in `tailwind.config.ts`:
-```typescript
-colors: {
-  primary: "#1e40af",      // Main blue
-  secondary: "#0f172a",    // Dark navy
-}
-```
-
-### Adjust Grid Layout
-In `src/app/page.tsx`, modify the grid classes:
-```typescript
-// Current: 4 columns on large screens
-lg:grid-cols-4
-// Change to 3 columns:
-lg:grid-cols-3
-```
-
-## Technologies Used
-
-- **Next.js 15** - React framework
-- **TypeScript** - Type safety
-- **Tailwind CSS** - Styling
-- **Vercel** - Deployment
-
-## License
-
-This project is for Notre Dame College Batch 2021 Group A alumni only.

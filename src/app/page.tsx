@@ -1,4 +1,5 @@
-import ProfileCard from "@/components/ProfileCard";
+import ProfileDirectory from "@/components/ProfileDirectory";
+import Image from "next/image";
 import { getProfiles } from "@/lib/sheets";
 
 export default async function Home() {
@@ -14,6 +15,9 @@ export default async function Home() {
         <span className="inline-block py-1 px-4 rounded-full bg-gold/10 text-darkGold text-xs font-bold tracking-widest mb-6 border border-gold/20 uppercase">
           Batch Directory
         </span>
+        <div className="mx-auto mb-6 w-24 h-24">
+          <Image src="/ndc.svg" alt="NDC Logo" width={96} height={96} className="mx-auto" />
+        </div>
         <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tight mb-6">
           NDC 2021 <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold to-darkGold">Group A</span>
         </h1>
@@ -33,7 +37,7 @@ export default async function Home() {
           <div className="bg-white/80 backdrop-blur-sm border border-slate-200 p-6 rounded-2xl text-center shadow-sm hover:shadow-md transition-shadow">
             <div className="w-12 h-12 mx-auto bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mb-4 text-xl border border-blue-100">👥</div>
             <h3 className="font-bold text-slate-900 mb-2">Browse All Members</h3>
-            <p className="text-sm text-slate-600">Explore all 132 members of the batch, even if they haven't filled out their profile yet.</p>
+            <p className="text-sm text-slate-600">Explore all 132 members of the batch, even if they haven&#39;t filled out their profile yet.</p>
           </div>
           
           <div className="bg-white/80 backdrop-blur-sm border border-slate-200 p-6 rounded-2xl text-center shadow-sm hover:shadow-md transition-shadow">
@@ -50,18 +54,8 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Grid of Profiles */}
-      <section className="max-w-7xl mx-auto px-4 pb-24 w-full flex-grow">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-slate-900 mb-3">Meet the Batch</h2>
-          <div className="w-16 h-1 bg-gold mx-auto rounded-full"></div>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
-          {profiles.map((profile) => (
-            <ProfileCard key={profile.id} profile={profile} />
-          ))}
-        </div>
-      </section>
+      {/* Searchable Directory and profile grid */}
+      <ProfileDirectory profiles={profiles} />
 
       {/* Footer / Credits */}
       <footer className="bg-white border-t border-slate-200 py-10 mt-auto">
