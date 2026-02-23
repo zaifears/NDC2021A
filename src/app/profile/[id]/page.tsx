@@ -67,227 +67,177 @@ export default async function ProfilePage(props: any) {
     : null;
   return (
     <main className="min-h-screen bg-gradient-to-b from-blue-50 to-gray-50">
-      <div className="max-w-4xl mx-auto px-4 py-12 relative">
-        {/* Back Button - modern style, sticky on desktop */}
+      <div className="max-w-4xl mx-auto px-4 relative">
+        {/* Back Button */}
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-slate-800 hover:text-slate-900 font-semibold bg-white/90 backdrop-blur-sm rounded-full px-4 py-2 shadow transition-colors absolute lg:fixed lg:top-4 lg:left-4 lg:mb-0 lg:bg-white/90 lg:backdrop-blur-sm lg:px-4 lg:py-2 lg:shadow lg:gap-2 lg:rounded-full lg:text-slate-800 lg:hover:text-slate-900 lg:font-semibold lg:transition-colors"
+          className="absolute top-4 left-4 flex items-center gap-1 p-2.5 bg-white/90 backdrop-blur-sm rounded-full shadow hover:bg-white transition-colors"
         >
-          <span className="text-lg">←</span>
-          <span className="hidden lg:inline">Back to Directory</span>
+          <span className="text-lg text-slate-800">←</span>
+          <span className="hidden sm:inline text-sm font-medium text-slate-800">Back</span>
         </Link>
 
-        {/* Profile Card */}
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden ring-1 ring-slate-200">
-          {/* JSON-LD for better indexing by search engines and LLMs */}
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{
-              __html: JSON.stringify({
-                "@context": "https://schema.org",
-                "@type": "Person",
-                name: profile.name,
-                image: proxiedImage ?? "/images/user.png",
-                description: profile.description || undefined,
-                alumniOf: {
-                  "@type": "CollegeOrUniversity",
-                  name: "Notre Dame College",
-                },
-                identifier: profile.id,
-              }),
-            }}
-          />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-10">
-            {/* Image Section */}
-            <div className="flex flex-col items-center justify-center">
-              <div className="w-72 h-72 rounded-xl overflow-hidden shadow-lg bg-gray-200 mb-6 relative">
+        {/* Profile Container */}
+        <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden border border-slate-100 relative mt-16 lg:mt-0">
+          {/* Cover Banner */}
+          <div className="h-48 sm:h-64 w-full bg-gradient-to-tr from-slate-900 via-blue-900 to-slate-800 relative overflow-hidden">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-gold/20 via-transparent to-transparent opacity-60"></div>
+          </div>
+
+          <div className="px-6 sm:px-12 pb-12 relative">
+            {/* Overlapping Avatar */}
+            <div className="absolute -top-28 sm:-top-32 left-1/2 transform -translate-x-1/2">
+              <div className="w-44 h-44 sm:w-52 sm:h-52 rounded-3xl overflow-hidden shadow-xl ring-4 ring-white bg-slate-100 relative z-10">
                 <Image
                   src={proxiedImage ?? "/images/user.png"}
                   alt={profile.name}
-                  width={288}
-                  height={288}
-                  className="object-cover w-full h-full"
+                  fill
+                  className="object-cover"
                   priority
                 />
               </div>
-              <p className="text-lg font-semibold text-gold">
-                ID: {profile.id}
+            </div>
+
+            {/* Header Info */}
+            <div className="pt-20 sm:pt-24 text-center">
+              <div className="flex flex-col items-center gap-3 mb-3">
+                <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+                  {profile.name}
+                </h1>
+                {/* Sleek ID Badge */}
+                <span className="px-3 py-1 bg-gold/10 text-darkGold text-xs font-bold rounded-full border border-gold/20 tracking-wider">
+                  ID: {profile.id}
+                </span>
+              </div>
+
+              {profile.lastUpdated && (
+                <p className="text-xs font-medium text-slate-400 mb-6 flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                  Updated {formatDate(profile.lastUpdated)}
+                </p>
+              )}
+
+              <p className="text-slate-600 text-lg leading-relaxed max-w-2xl mx-auto text-center">
+                {profile.description || "No description provided yet."}
               </p>
             </div>
 
-            {/* Details Section */}
-            <div>
-              <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gold to-darkGold mb-2">
-                {profile.name}
-              </h1>
-              {profile.lastUpdated && (
-                <p className="text-sm text-slate-500 mb-2">
-                  Last updated: {formatDate(profile.lastUpdated)}
-                </p>
+            <hr className="my-10 border-slate-100" />
+
+            {/* Contact Links Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Email */}
+              {profile.email ? (
+                <a
+                  href={`mailto:${profile.email}`}
+                  className="group flex items-center gap-4 p-4 rounded-2xl bg-slate-50/80 hover:bg-slate-100 transition-colors border border-transparent hover:border-slate-200"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform p-2.5 border border-slate-100">
+                    <Image src="/images/mail.png" alt="Email" width={20} height={20} className="object-contain" />
+                  </div>
+                  <div className="overflow-hidden text-left flex-1">
+                    <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Email</p>
+                    <p className="text-sm font-semibold text-slate-800 truncate">{profile.email}</p>
+                  </div>
+                  <span className="text-slate-300 group-hover:text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity pr-2">↗</span>
+                </a>
+              ) : (
+                <div className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50/50 opacity-60">
+                  <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center flex-shrink-0 p-2.5 border border-slate-100 grayscale opacity-40">
+                    <Image src="/images/mail.png" alt="Email" width={20} height={20} className="object-contain" />
+                  </div>
+                  <div className="overflow-hidden text-left flex-1">
+                    <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Email</p>
+                    <p className="text-sm font-medium text-slate-500 italic">Not provided</p>
+                  </div>
+                </div>
               )}
-              <p className="text-gray-600 mb-6 leading-relaxed">
-                {profile.description || "No description provided yet."}
-              </p>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full mt-8">
-                
-                {/* Email */}
-                {profile.email ? (
-                  <a
-                    href={`mailto:${profile.email}`}
-                    className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 hover:bg-blue-50 transition-all border border-slate-100 hover:border-blue-200 group"
-                  >
-                    <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform p-2.5">
-                      <Image
-                        src="/images/mail.png"
-                        alt="Email"
-                        width={24}
-                        height={24}
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                    <div className="overflow-hidden text-left">
-                      <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">Email</p>
-                      <p className="text-sm font-semibold text-slate-900 truncate">{profile.email}</p>
-                    </div>
-                  </a>
-                ) : (
-                  <div className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50/50 border border-slate-100 opacity-70">
-                    <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center flex-shrink-0 p-2.5">
-                      <Image
-                        src="/images/mail.png"
-                        alt="Email"
-                        width={24}
-                        height={24}
-                        className="w-full h-full object-contain grayscale opacity-40"
-                      />
-                    </div>
-                    <div className="overflow-hidden text-left">
-                      <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">Email</p>
-                      <p className="text-sm font-medium text-slate-500 italic">Not provided</p>
-                    </div>
+              {/* Phone */}
+              {profile.phone ? (
+                <a
+                  href={`tel:${profile.phone}`}
+                  className="group flex items-center gap-4 p-4 rounded-2xl bg-slate-50/80 hover:bg-slate-100 transition-colors border border-transparent hover:border-slate-200"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform p-2.5 border border-slate-100">
+                    <Image src="/images/phone.png" alt="Phone" width={20} height={20} className="object-contain" />
                   </div>
-                )}
-
-                {/* Phone */}
-                {profile.phone ? (
-                  <a
-                    href={`tel:${profile.phone}`}
-                    className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 hover:bg-blue-50 transition-all border border-slate-100 hover:border-blue-200 group"
-                  >
-                    <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform p-2.5">
-                      <Image
-                        src="/images/phone.png"
-                        alt="Phone"
-                        width={24}
-                        height={24}
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                    <div className="overflow-hidden text-left">
-                      <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">Phone</p>
-                      <p className="text-sm font-semibold text-slate-900 truncate">{profile.phone}</p>
-                    </div>
-                  </a>
-                ) : (
-                  <div className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50/50 border border-slate-100 opacity-70">
-                    <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center flex-shrink-0 p-2.5">
-                      <Image
-                        src="/images/phone.png"
-                        alt="Phone"
-                        width={24}
-                        height={24}
-                        className="w-full h-full object-contain grayscale opacity-40"
-                      />
-                    </div>
-                    <div className="overflow-hidden text-left">
-                      <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">Phone</p>
-                      <p className="text-sm font-medium text-slate-500 italic">Not provided</p>
-                    </div>
+                  <div className="overflow-hidden text-left flex-1">
+                    <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Phone</p>
+                    <p className="text-sm font-semibold text-slate-800 truncate">{profile.phone}</p>
                   </div>
-                )}
-
-                {/* LinkedIn */}
-                {profile.linkedin ? (
-                  <a
-                    href={profile.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 hover:bg-blue-50 transition-all border border-slate-100 hover:border-blue-200 group"
-                  >
-                    <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform p-2.5">
-                      <Image
-                        src="/images/linkedin.png"
-                        alt="LinkedIn"
-                        width={24}
-                        height={24}
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                    <div className="overflow-hidden text-left">
-                      <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">LinkedIn</p>
-                      <p className="text-sm font-semibold text-blue-600 truncate group-hover:underline">View Profile</p>
-                    </div>
-                  </a>
-                ) : (
-                  <div className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50/50 border border-slate-100 opacity-70">
-                    <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center flex-shrink-0 p-2.5">
-                      <Image
-                        src="/images/linkedin.png"
-                        alt="LinkedIn"
-                        width={24}
-                        height={24}
-                        className="w-full h-full object-contain grayscale opacity-40"
-                      />
-                    </div>
-                    <div className="overflow-hidden text-left">
-                      <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">LinkedIn</p>
-                      <p className="text-sm font-medium text-slate-500 italic">Not provided</p>
-                    </div>
+                  <span className="text-slate-300 group-hover:text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity pr-2">↗</span>
+                </a>
+              ) : (
+                <div className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50/50 opacity-60">
+                  <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center flex-shrink-0 p-2.5 border border-slate-100 grayscale opacity-40">
+                    <Image src="/images/phone.png" alt="Phone" width={20} height={20} className="object-contain" />
                   </div>
-                )}
-
-                {/* Facebook */}
-                {profile.facebook ? (
-                  <a
-                    href={profile.facebook}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 hover:bg-blue-50 transition-all border border-slate-100 hover:border-blue-200 group"
-                  >
-                    <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform text-xl">
-                          <Image
-                        src="/images/facebook.svg"
-                        alt="Facebook"
-                        width={24}
-                        height={24}
-                        className="w-full h-full object-contain"
-                          />
-                    </div>
-                    <div className="overflow-hidden text-left">
-                      <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">Facebook</p>
-                      <p className="text-sm font-semibold text-blue-600 truncate group-hover:underline">View Profile</p>
-                    </div>
-                  </a>
-                ) : (
-                  <div className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50/50 border border-slate-100 opacity-70">
-                    <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center flex-shrink-0 p-2.5 grayscale opacity-40">
-                      <Image
-                        src="/images/facebook.svg"
-                        alt="Facebook"
-                        width={24}
-                        height={24}
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                    <div className="overflow-hidden text-left">
-                      <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">Facebook</p>
-                      <p className="text-sm font-medium text-slate-500 italic">Not provided</p>
-                    </div>
+                  <div className="overflow-hidden text-left flex-1">
+                    <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Phone</p>
+                    <p className="text-sm font-medium text-slate-500 italic">Not provided</p>
                   </div>
-                )}
+                </div>
+              )}
 
-              </div>
+              {/* LinkedIn */}
+              {profile.linkedin ? (
+                <a
+                  href={profile.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-center gap-4 p-4 rounded-2xl bg-slate-50/80 hover:bg-slate-100 transition-colors border border-transparent hover:border-slate-200"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform p-2.5 border border-slate-100">
+                    <Image src="/images/linkedin.png" alt="LinkedIn" width={20} height={20} className="object-contain" />
+                  </div>
+                  <div className="overflow-hidden text-left flex-1">
+                    <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">LinkedIn</p>
+                    <p className="text-sm font-semibold text-slate-800 truncate">View Profile</p>
+                  </div>
+                  <span className="text-slate-300 group-hover:text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity pr-2">↗</span>
+                </a>
+              ) : (
+                <div className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50/50 opacity-60">
+                  <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center flex-shrink-0 p-2.5 border border-slate-100 grayscale opacity-40">
+                    <Image src="/images/linkedin.png" alt="LinkedIn" width={20} height={20} className="object-contain" />
+                  </div>
+                  <div className="overflow-hidden text-left flex-1">
+                    <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">LinkedIn</p>
+                    <p className="text-sm font-medium text-slate-500 italic">Not provided</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Facebook */}
+              {profile.facebook ? (
+                <a
+                  href={profile.facebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-center gap-4 p-4 rounded-2xl bg-slate-50/80 hover:bg-slate-100 transition-colors border border-transparent hover:border-slate-200"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform p-2.5 border border-slate-100">
+                    <Image src="/images/facebook.svg" alt="Facebook" width={20} height={20} className="object-contain" />
+                  </div>
+                  <div className="overflow-hidden text-left flex-1">
+                    <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Facebook</p>
+                    <p className="text-sm font-semibold text-slate-800 truncate">View Profile</p>
+                  </div>
+                  <span className="text-slate-300 group-hover:text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity pr-2">↗</span>
+                </a>
+              ) : (
+                <div className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50/50 opacity-60">
+                  <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center flex-shrink-0 p-2.5 border border-slate-100 grayscale opacity-40">
+                    <Image src="/images/facebook.svg" alt="Facebook" width={20} height={20} className="object-contain" />
+                  </div>
+                  <div className="overflow-hidden text-left flex-1">
+                    <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Facebook</p>
+                    <p className="text-sm font-medium text-slate-500 italic">Not provided</p>
+                  </div>
+                </div>
+              )}
+
             </div>
           </div>
         </div>
