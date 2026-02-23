@@ -111,7 +111,7 @@ export default async function ProfilePage(props: any) {
               </div>
 
               {profile.lastUpdated && (
-                <p className="text-xs font-medium text-slate-400 mb-6 flex items-center gap-1.5">
+                <p className="text-xs font-medium text-slate-400 mb-6 flex items-center gap-1.5 justify-center mx-auto">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                   Updated {formatDate(profile.lastUpdated)}
                 </p>
