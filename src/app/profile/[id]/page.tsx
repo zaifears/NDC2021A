@@ -4,8 +4,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-  const id = params.id;
+export async function generateMetadata(props: any): Promise<Metadata> {
+  // props.params may be a Promise in Next typings
+  const { id } = await props.params;
   const profile = await getProfileById(id);
   if (!profile) {
     return { title: "Profile - NDC 2021 Group A" };
@@ -50,8 +51,9 @@ function formatDate(raw: string) {
   return datePart;
 }
 
-export default async function ProfilePage({ params }: { params: { id: string } }) {
-  const { id } = params;
+export default async function ProfilePage(props: any) {
+  // `params` may be a plain object or a Promise; await to normalize.
+  const { id } = await props.params;
   const profile = await getProfileById(id);
 
   if (!profile) {
