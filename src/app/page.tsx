@@ -1,6 +1,7 @@
 import ProfileDirectory from "@/components/ProfileDirectory";
 import Image from "next/image";
 import { getProfiles } from "@/lib/sheets";
+import ScrollWrapper from "@/components/ScrollWrapper";
 
 export default async function Home() {
   const profiles = await getProfiles();
@@ -58,6 +59,7 @@ export default async function Home() {
       <ProfileDirectory profiles={profiles} />
 
       {/* Footer / Credits */}
+      <ScrollWrapper />
       <footer className="bg-white border-t border-slate-200 py-10 mt-auto">
         <div className="max-w-7xl mx-auto px-4 text-center">
           <p className="text-sm text-slate-500 mb-3">

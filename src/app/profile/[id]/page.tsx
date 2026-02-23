@@ -68,10 +68,10 @@ export default async function ProfilePage(props: any) {
   return (
     <main className="min-h-screen bg-gradient-to-b from-blue-50 to-gray-50">
       <div className="max-w-4xl mx-auto px-4 relative">
-        {/* Back Button */}
+        {/* Back Button (desktop only, shifted right) */}
         <Link
           href="/"
-          className="absolute top-4 left-4 flex items-center gap-1 p-2.5 bg-white/90 backdrop-blur-sm rounded-full shadow hover:bg-white transition-colors"
+          className="hidden lg:flex absolute top-4 left-12 z-20 items-center gap-1 p-2.5 bg-white/90 backdrop-blur-sm rounded-full shadow hover:bg-white transition-colors"
         >
           <span className="text-lg text-slate-800">←</span>
           <span className="hidden sm:inline text-sm font-medium text-slate-800">Back</span>
