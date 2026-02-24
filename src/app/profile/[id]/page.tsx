@@ -242,6 +242,21 @@ export default async function ProfilePage(props: any) {
           </div>
         </div>
       </div>
+      {/* small greyed out update prompt section */}
+      <footer className="mt-8 mb-8">
+        <div className="max-w-md mx-auto p-4 bg-slate-100 rounded-lg border border-slate-200 text-center text-xs text-slate-500">
+          <h2 className="font-semibold mb-1">Keep profiles accurate</h2>
+          <p className="mb-2">
+            See something outdated or incorrect? Help us keep this page up to date.
+          </p>
+          <a
+            href="mailto:alshahoriar.hossain@gmail.com?subject=Update%20My%20profile%20page%20in%20NDC2021A%20website"
+            className="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+          >
+            Send email
+          </a>
+        </div>
+      </footer>
     </main>
   );
 }

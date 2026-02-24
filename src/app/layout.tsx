@@ -7,13 +7,16 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.ico",
   },
+  // base URL used when resolving relative image paths for OG/twitter
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"),
 };
 
-// Add default Open Graph and Social metadata
+// Add default Open Graph and Social metadata (only badge.png so that
+// link previews on messaging platforms use it)
 metadata.openGraph = {
   title: metadata.title,
   description: metadata.description,
-  images: ["/badge.png", "/ndc.svg"],
+  images: ["/badge.png"],
 };
 
 metadata.twitter = {
