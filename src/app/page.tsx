@@ -57,7 +57,7 @@ export default async function Home() {
           <Image src="/ndc.svg" alt="NDC Logo" width={96} height={96} className="mx-auto" />
         </div>
         <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tight mb-6">
-          NDC 2021 <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold to-darkGold">Group A</span>
+          NDC 2021<br className="md:hidden" /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold to-darkGold">Group A</span>
         </h1>
         <p className="text-lg md:text-xl text-slate-500 max-w-3xl mx-auto mb-10 leading-relaxed font-medium">
           Welcome to the official directory for Notre Dame College Batch 2021 Group A. This site is a community-driven project to help you connect with your classmates, discover their backgrounds, and stay in touch.

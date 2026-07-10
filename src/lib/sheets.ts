@@ -9,8 +9,45 @@ const GOOGLE_SHEETS_API_KEY = process.env.GOOGLE_SHEETS_API_KEY;
 const SHEET_RANGE = "Form responses 1!A2:I"; // Skip header row, read all data rows
 
 /**
- * Creates a default Profile from the base student list (ID + name only).
+ * Deduplicate an array of profile-like objects by `id`, keeping the entry with the latest timestamp.
+ * Expects each profile to have `id` and `timestamp` (string) fields.
  */
+function deduplicateProfiles(profiles: any[]) {
+  const latestMap = new Map<string, any>();
+
+  profiles.forEach((profile) => {
+    const id = profile?.id;
+    if (!id) return; // Skip entries without an ID
+
+    // Parse timestamp; fallback to 0 if missing or invalid
+    const currentTimestamp = (() => {
+      const t = profile.timestamp ?? profile.lastUpdated ?? "";
+      const parsed = new Date(t).getTime();
+      return Number.isFinite(parsed) ? parsed : 0;
+    })();
+
+    const existing = latestMap.get(id);
+
+    if (!existing) {
+      // First time we see this ID
+      latestMap.set(id, profile);
+    } else {
+      // Compare timestamps and keep the newest
+      const existingTimestamp = (() => {
+        const t = existing.timestamp ?? existing.lastUpdated ?? "";
+        const parsed = new Date(t).getTime();
+        return Number.isFinite(parsed) ? parsed : 0;
+      })();
+
+      if (currentTimestamp > existingTimestamp) {
+        latestMap.set(id, profile);
+      }
+    }
+  });
+
+  return Array.from(latestMap.values());
+}
+
 function createDefaultProfile(student: { id: string; name: string }): Profile {
   return {
     id: student.id,
@@ -26,12 +63,36 @@ function createDefaultProfile(student: { id: string; name: string }): Profile {
 }
 
 /**
- * Fetches all profiles from the Google Sheet and merges with the base 132 student list.
+ * Convert common hosted image URLs (Google Drive variants) into a direct viewable URL.
+ * If the URL is empty or not recognized, returns an empty string or the trimmed original.
+ */
+function normalizeImageUrl(raw: string): string {
+  if (!raw) return "";
+  const trimmed = raw.trim();
+
+  // Google Drive variants -> direct viewable link
+  // examples:
+  //   https://drive.google.com/file/d/FILEID/view?usp=sharing
+  //   https://drive.google.com/open?id=FILEID
+  //   https://drive.google.com/uc?id=FILEID&export=download
+  const driveRegex =
+    /drive\.google\.com\/(?:file\/d\/([a-zA-Z0-9_-]+)|open\?id=([a-zA-Z0-9_-]+)|uc\?id=([a-zA-Z0-9_-]+))/;
+  const match = trimmed.match(driveRegex);
+  if (match) {
+    const id = match[1] || match[2] || match[3];
+    if (id) return `https://drive.google.com/uc?export=view&id=${id}`;
+  }
+
+  return trimmed;
+}
+
+/**
+ * Fetches all profiles from the Google Sheet and merges with the base student list.
  * Students who haven't submitted the form still appear with their ID and name.
  * Falls back to base student list if env vars are missing or fetch fails.
  */
 export async function getProfiles(): Promise<Profile[]> {
-  // Start with all 132 students as default profiles
+  // Start with all base students as default profiles
   const profileMap = new Map<string, Profile>();
   for (const student of BASE_STUDENTS) {
     profileMap.set(student.id, createDefaultProfile(student));
@@ -59,29 +120,15 @@ export async function getProfiles(): Promise<Profile[]> {
     const data = await res.json();
     const rows: string[][] = data.values ?? [];
 
-    // Merge form responses on top of the base student list
-    // helper to convert certain hosted URLs into direct links
-  function normalizeImageUrl(raw: string): string {
-    if (!raw) return "";
-    // Google Drive preview/shared links -> direct viewable URL
-    // examples:
-    //   https://drive.google.com/file/d/FILEID/view?usp=sharing
-    //   https://drive.google.com/open?id=FILEID
-    //   https://drive.google.com/uc?id=FILEID&export=download
-    const driveRegex = /drive\.google\.com\/(?:file\/d\/([a-zA-Z0-9_-]+)|open\?id=([a-zA-Z0-9_-]+))/;
-    const match = raw.match(driveRegex);
-    if (match) {
-      const id = match[1] || match[2];
-      return `https://drive.google.com/uc?export=view&id=${id}`;
-    }
-    return raw.trim();
-  }
+    // Parse all rows into profile-like objects (including timestamp) so we can deduplicate
+    const parsedProfiles: any[] = [];
 
-  for (const row of rows) {
+    for (const row of rows) {
+      // Row columns: 0=Timestamp, 1=Full College ID, 2=Full Legal Name, 3=Email, 4=Phone, 5=LinkedIn, 6=Short Bio, 7=Facebook, 8=Image
       const id = row[1]?.trim();
-      if (!id) continue; // skip empty rows
+      if (!id) continue; // skip empty rows or rows without ID
 
-      profileMap.set(id, {
+      parsedProfiles.push({
         id,
         name: row[2]?.trim() || profileMap.get(id)?.name || "",
         email: row[3]?.trim() ?? "",
@@ -90,7 +137,30 @@ export async function getProfiles(): Promise<Profile[]> {
         description: row[6]?.trim() ?? "",
         facebook: row[7]?.trim() ?? "",
         image: normalizeImageUrl(row[8] ?? ""),
+        timestamp: row[0]?.trim() ?? "",
         lastUpdated: row[0]?.trim() ?? "",
+      });
+    }
+
+    // Deduplicate by id, keeping the latest timestamped submission
+    const latestProfiles = deduplicateProfiles(parsedProfiles);
+
+    // Merge deduplicated form responses on top of the base student list
+    for (const p of latestProfiles) {
+      const base = profileMap.get(p.id);
+
+      // Replace the entire profile for that ID with the latest submission.
+      // If the form left the name blank, preserve the base name.
+      profileMap.set(p.id, {
+        id: p.id,
+        name: p.name || base?.name || "",
+        email: p.email || "",
+        phone: p.phone || "",
+        linkedin: p.linkedin || "",
+        description: p.description || "",
+        facebook: p.facebook || "",
+        image: p.image || "",
+        lastUpdated: p.lastUpdated || "",
       });
     }
 

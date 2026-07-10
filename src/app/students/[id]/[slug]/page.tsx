@@ -1,9 +1,11 @@
+import ProfileImage from "@/components/ProfileImage";
 import { getProfileById } from "@/lib/sheets";
 import Image from "next/image";
 import Link from "next/link";
 // @ts-ignore: Bypass strict module resolution mismatch for Next.js imports
 import { notFound, permanentRedirect } from "next/navigation";
 import { createSlug } from "@/lib/slug";
+
 
 export async function generateMetadata(props: any): Promise<any> {
   const { id } = await props.params;
@@ -101,10 +103,18 @@ export default async function ProfilePage(props: any) {
       <div className="max-w-4xl mx-auto px-4 relative">
         <Link
           href="/"
-          className="hidden lg:flex absolute top-4 left-12 z-20 items-center gap-1 p-2.5 bg-white/90 backdrop-blur-sm rounded-full shadow hover:bg-white transition-colors"
+          // Increased 'left-4' to 'left-6' or 'left-8' to shift it toward the right
+          className="group flex absolute top-4 left-6 sm:left-12 z-20 items-center gap-2 pl-3 pr-4 py-2 bg-white/80 backdrop-blur-md border border-slate-200/60 rounded-full shadow-sm hover:shadow-md hover:border-gold/50 hover:shadow-gold/10 transition-all duration-300 ease-out active:scale-95"
         >
-          <span className="text-lg text-slate-800">←</span>
-          <span className="hidden sm:inline text-sm font-medium text-slate-800">Back</span>
+          <svg 
+            className="w-4 h-4 text-slate-500 group-hover:text-gold transition-colors duration-300" 
+            fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          <span className="text-sm font-bold text-slate-700 group-hover:text-slate-900 transition-colors">
+            Back
+          </span>
         </Link>
 
         <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden border border-slate-100 relative mt-16 lg:mt-0">
@@ -113,13 +123,20 @@ export default async function ProfilePage(props: any) {
           </div>
 
           <div className="px-6 sm:px-12 pb-12 relative">
-            <div className="absolute -top-28 sm:-top-32 left-1/2 transform -translate-x-1/2">
-              <div className="w-44 h-44 sm:w-52 sm:h-52 rounded-3xl overflow-hidden shadow-xl ring-4 ring-white bg-slate-100 relative z-10">
-                <Image src={proxiedImage ?? "/images/user.png"} alt={profile.name} fill className="object-cover" priority />
-              </div>
+
+{/* Slightly reduced negative top margin to prevent overcrowding */}
+            <div className="absolute -top-28 sm:-top-36 left-1/2 transform -translate-x-1/2">
+              {proxiedImage ? (
+                <ProfileImage src={proxiedImage} alt={profile.name} />
+              ) : (
+                <div className="w-44 h-56 sm:w-52 sm:h-72 rounded-3xl overflow-hidden shadow-xl ring-4 ring-white bg-slate-100 relative z-10 flex items-center justify-center text-6xl text-slate-300">
+                  👤
+                </div>
+              )}
             </div>
 
-            <div className="pt-20 sm:pt-24 text-center">
+            {/* Increased top padding to ensure text clears the taller image */}
+            <div className="pt-36 sm:pt-44 text-center">
               <div className="flex flex-col items-center gap-3 mb-3">
                 <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">{profile.name}</h1>
                 <span className="px-3 py-1 bg-gold/10 text-darkGold text-xs font-bold rounded-full border border-gold/20 tracking-wider">ID: {profile.id}</span>

@@ -23,9 +23,9 @@ function getSafeLastMod(raw: string) {
   return new Date().toISOString();
 }
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
-    const origin = new URL(request.url).origin;
+    const origin = process.env.NEXT_PUBLIC_BASE_URL || "https://ndc2021a.vercel.app";
     const profiles = await getProfiles();
 
     const homepage = `
