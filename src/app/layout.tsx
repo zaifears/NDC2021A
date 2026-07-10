@@ -5,9 +5,6 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "NDC 2021 Group A - Batch Directory",
   description: "Connect with Notre Dame College Batch 2021 Group A alumni",
-  verification: {
-  google: "google6d4fe17fcdeadb6e",
-},
   icons: {
     icon: "/favicon.ico",
   },
