@@ -10,6 +10,15 @@ const nextConfig: NextConfig = {
   allowedDevOrigins: [
     "http://192.168.0.134:3000",
   ],
+  async redirects() {
+    return [
+      {
+        source: "/profile/:path*",
+        destination: "/students/:path*",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

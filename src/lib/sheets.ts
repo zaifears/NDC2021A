@@ -50,7 +50,7 @@ export async function getProfiles(): Promise<Profile[]> {
 
     const res = await fetch(url, {
       next: { revalidate: 60 }, // ISR: re-fetch from Google Sheets every 60 seconds
-    });
+    } as any);
 
     if (!res.ok) {
       throw new Error(`Google Sheets API error: ${res.status} ${res.statusText}`);

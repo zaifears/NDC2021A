@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { createSlug } from "@/lib/slug";
 import { Profile } from "@/types/profile";
 
 function generateGradient(key: string) {
@@ -16,7 +17,7 @@ function generateGradient(key: string) {
 
 export default function ProfileCard({ profile }: { profile: Profile }) {
   return (
-    <Link href={`/profile/${profile.id}`} className="group block h-full outline-none">
+    <Link href={`/students/${profile.id}/${createSlug(profile.name)}`} className="group block h-full outline-none">
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-3 sm:p-4 h-full transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-gold/40 relative overflow-hidden">
         {/* Hover Top Border Accent */}
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-gold to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />

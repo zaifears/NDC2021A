@@ -2,6 +2,8 @@
 
 import { useState, useMemo } from "react";
 import { Profile } from "@/types/profile";
+import { createSlug } from "@/lib/slug";
+import Link from "next/link";
 
 const MY_PROFILE_ID = "62101030"; // replace with your actual ID if different
 
@@ -40,7 +42,7 @@ export default function ProfileDirectory({ profiles }: { profiles: Profile[] }) 
         <p>
           Open source project by
           <a
-            href="https://zaifears.vercel.app"
+            href="https://shahoriar.bd"
             target="_blank"
             rel="noopener noreferrer"
             className="font-bold text-gold hover:underline ml-1"
@@ -81,8 +83,9 @@ export default function ProfileDirectory({ profiles }: { profiles: Profile[] }) 
             {/* Subtle hover accent line */}
             <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-gold to-darkGold opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-            <a
-              href={`/profile/${p.id}`}
+            <Link
+              href={`/students/${p.id}/${createSlug(p.name)}`}
+              prefetch={false}
               className="flex items-center px-5 py-4 min-h-[4.5rem]"
             >
               {/* Sleek Monogram instead of image */}
@@ -107,7 +110,7 @@ export default function ProfileDirectory({ profiles }: { profiles: Profile[] }) 
               <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
                 <span className="text-gold font-bold">→</span>
               </div>
-            </a>
+            </Link>
           </li>
         ))}
       </ul>

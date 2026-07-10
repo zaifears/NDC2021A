@@ -1,4 +1,3 @@
-
 <div align="center">
 
   <img src="https://i.postimg.cc/RFmm10pB/badge.png" alt="NDC Badge" width="240" />
@@ -30,36 +29,44 @@
 ## Quick summary
 
 - List-style homepage with instant search by name or ID.
-- Profile pages load full details and the user image (images are not loaded on the homepage).
+- Profile pages load full details and the user image (images are not loaded on the homepage to optimize bandwidth).
 - Google Sheets integration with automatic merging against a base student list.
+- Dynamic SEO features including automated Breadcrumb JSON-LD and a live, auto-generating `sitemap.xml`.
 - Proxy-based image fetching for better compatibility with Google Drive and other hosts.
 
 ---
 
 ## Features
 
-- Minimal, fast homepage (no images) with a modern file-manager-like list view.
-- Enhanced visual polish: dynamic gradient monograms, taller list rows, frosted-glass search bar, and subtle fade-in/hover animations.
-- Detailed profile pages with contact cards and social links.
-- Automatic Google Sheets polling (revalidate every ~60s) — no redeploy required after form submissions.
-- Google Drive and PostImage links supported for profile images; Drive links are normalized.
-- Small `GET /api/image` proxy to stream allowed remote images to the browser.
+- Minimal UI: Fast homepage with a modern file-manager-like list view.
+- Enhanced visual polish: Dynamic gradient monograms, taller list rows, frosted-glass search bar, Bento-Box styled profile cards, and subtle fade-in animations.
+- Google Sheets polling: Automatic fetching (revalidates every ~60s) via ISR. No redeploy required after new Google Form submissions.
+- Image proxy: Small `GET /api/image` proxy to stream allowed remote images to the browser, with automated caching headers for Vercel edge optimization.
+- Drive link normalization: Google Drive and PostImage links are supported for profile images; Drive links are automatically extracted and converted to direct-view URLs.
+- Native routing: Strict canonical URL enforcement and 308 redirects using Next.js native navigation logic.
+
+---
 
 ## Project structure (high level)
 
-```
+```plaintext
 src/
 ├─ app/
 │  ├─ layout.tsx
-│  ├─ page.tsx                 # Homepage (list + search)
-│  └─ profile/[id]/page.tsx    # Profile details
-├─ app/api/image/route.ts      # Image proxy
+│  ├─ page.tsx                        # Homepage (list + search)
+│  ├─ sitemap.xml/route.ts            # Dynamic W3C valid sitemap generation
+│  ├─ knowledge.json/route.ts         # JSON API endpoint for LLM context
+│  └─ students/[id]/[slug]/page.tsx   # Student profile details
+├─ app/api/image/route.ts             # Image proxy with caching headers
 ├─ components/
 │  ├─ ProfileDirectory.tsx
 │  └─ ProfileCard.tsx
-├─ lib/sheets.ts               # Google Sheets fetch + normalization
-└─ data/profiles.ts            # Base fallback profiles
+├─ lib/sheets.ts                      # Google Sheets fetch + normalization
+├─ lib/slug.ts                        # Centralized canonical slug generator
+└─ data/students.ts                   # Base fallback profiles (ID + Name)
 ```
+
+---
 
 ## Setup & development
 
@@ -72,29 +79,36 @@ pnpm run dev
 
 Open http://localhost:3000
 
+---
+
 ## Google Sheets / Google Form
 
 Create a Google Form that writes responses to a Sheet with the following header (Row 1):
 
 | A: Timestamp | B: Full College ID | C: Full Legal Name | D: Email | E: Phone | F: LinkedIn URL | G: Short Bio | H: Facebook Account URL | I: Upload Your Image |
 
+- Permissions: Ensure the target Google Sheet is set to "Anyone with the link can view".
 - Use the shareable image link in column I (PostImage or Google Drive). Drive links must be shareable; the app normalizes common Drive URLs.
 - Set `GOOGLE_SHEET_ID` and `GOOGLE_SHEETS_API_KEY` in environment variables for production.
 
+---
+
 ## Image proxy
 
-The proxy at `/api/image` accepts a base64 `u` parameter with the remote URL and streams back the remote image. Edit the host allowlist in `src/app/api/image/route.ts` to add additional hosts.
+The proxy at `/api/image` accepts a base64 `u` parameter with the remote URL and streams back the remote image. Edit the `ALLOWED_HOSTS` set in `src/app/api/image/route.ts` to add additional hosts.
+
+---
 
 ## Notes
 
-- `formatDate` in `src/app/profile/[id]/page.tsx` formats the Sheets timestamp to `YYYY-MM-DD` for display as "Last updated".
-- The global navbar was intentionally removed — the profile page has a sticky back button on desktop.
+- `formatDate` helper correctly parses the local DD/MM/YYYY Sheets timestamp into international standard formats for UI display and sitemaps.
+- The global navbar was intentionally removed — the profile page has a sticky back button on desktop for a cleaner app-like feel.
+- Deployment: Recommended Vercel.
+- Ensure environment variables are set for Google Sheets access. No middleware is required; caching and redirects are handled natively at the page level.
 
-## Deployment
-
-Recommended: Vercel. Ensure environment variables are set for Google Sheets access.
+---
 
 ## Credits
 
-Built and maintained by Md Al Shahoriar Hossain — https://zaifears.vercel.app (62101030)
+Built and maintained by Md Al Shahoriar Hossain — shahoriar.vercel.app (62101030)
 

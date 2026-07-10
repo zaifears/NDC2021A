@@ -1,13 +1,50 @@
+import HomeSchema from "@/components/HomeSchema";
 import ProfileDirectory from "@/components/ProfileDirectory";
+
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Who can appear in this directory?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Students of Notre Dame College Batch 2021 Group A."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Where does the information come from?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Profile information is submitted voluntarily by students using the official update form."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How can I update my profile?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "You can submit updated information using the official profile update form."
+      }
+    }
+  ]
+};
 import Image from "next/image";
 import { getProfiles } from "@/lib/sheets";
 import ScrollWrapper from "@/components/ScrollWrapper";
 
+
 export default async function Home() {
   const profiles = await getProfiles();
-
   return (
     <main className="min-h-screen bg-slate-50 relative overflow-hidden flex flex-col">
+      <HomeSchema />
+      <script 
+        type="application/ld+json" 
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} 
+      />
       {/* Subtle Background Gradient */}
       <div className="absolute top-0 inset-x-0 h-[500px] bg-gradient-to-b from-blue-900/5 to-transparent -z-10 pointer-events-none" />
 
@@ -58,7 +95,90 @@ export default async function Home() {
       {/* Searchable Directory and profile grid */}
       <ProfileDirectory profiles={profiles} />
 
-      {/* Footer / Credits */}
+      {/* About the Directory */}
+      <section className="max-w-5xl mx-auto px-4 pb-16">
+        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-8 md:p-10">
+
+          <h2 className="text-3xl font-bold text-slate-900 mb-6">
+            About the Notre Dame College Batch 2021 Group A Directory
+          </h2>
+
+          <div className="space-y-6 text-slate-600 leading-8">
+
+            <p>
+              This website is the official public directory for students of
+              <strong> Notre Dame College (NDC), Dhaka</strong>,
+              Batch <strong>2021</strong>,
+              Group <strong>A</strong>.
+              It was created as a community initiative to help classmates reconnect,
+              keep their information updated, and preserve a digital archive of the batch.
+            </p>
+
+            <p>
+              Every student has a dedicated profile page containing publicly shared
+              information such as their name, profile photograph, biography,
+              email address, phone number, and social media links when voluntarily
+              submitted through the official update form.
+            </p>
+
+            <p>
+              The directory is automatically synchronized using Google Forms and
+              Google Sheets, ensuring that updates submitted by students can be
+              reflected quickly while maintaining a single source of truth.
+            </p>
+
+          </div>
+        </div>
+      </section>
+
+      <section className="max-w-5xl mx-auto px-4 pb-20">
+
+        <h2 className="text-3xl font-bold text-slate-900 mb-8">
+          Frequently Asked Questions about the NDC 2021 Group A Directory
+        </h2>
+
+        <div className="space-y-6">
+
+          <div className="bg-white rounded-2xl border border-slate-200 p-6">
+
+            <h3 className="font-bold text-lg">
+              Who can appear in this directory?
+            </h3>
+
+            <p className="mt-2 text-slate-600">
+              Students of Notre Dame College Batch 2021 Group A.
+            </p>
+
+          </div>
+
+          <div className="bg-white rounded-2xl border border-slate-200 p-6">
+
+            <h3 className="font-bold text-lg">
+              Where does the information come from?
+            </h3>
+
+            <p className="mt-2 text-slate-600">
+              Profile information is submitted voluntarily by students using the official update form.
+            </p>
+
+          </div>
+
+          <div className="bg-white rounded-2xl border border-slate-200 p-6">
+
+            <h3 className="font-bold text-lg">
+              How can I update my profile?
+            </h3>
+
+            <p className="mt-2 text-slate-600">
+              You can submit updated information using the official profile update form.
+            </p>
+
+          </div>
+
+        </div>
+
+      </section>
+
       <ScrollWrapper />
       <footer className="bg-white border-t border-slate-200 py-10 mt-auto">
         <div className="max-w-7xl mx-auto px-4 text-center">
@@ -66,7 +186,7 @@ export default async function Home() {
             Built with <span className="font-semibold text-slate-700">Next.js, TypeScript, and Tailwind CSS</span>.
           </p>
           <p className="text-sm text-slate-500">
-            Open source project by <a href="https://zaifears.vercel.app" target="_blank" rel="noopener noreferrer" className="font-bold text-gold hover:text-darkGold transition-colors underline decoration-gold/30 hover:decoration-gold underline-offset-4">Md Al Shahoriar Hossain (62101030)</a>.
+            Open source project by <a href="https://shahoriar.bd" target="_blank" rel="noopener noreferrer" className="font-bold text-gold hover:text-darkGold transition-colors underline decoration-gold/30 hover:decoration-gold underline-offset-4">Md Al Shahoriar Hossain (62101030)</a>.
           </p>
         </div>
       </footer>

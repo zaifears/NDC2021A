@@ -1,13 +1,23 @@
-# llms.txt — machine-readable guidance for LLMs and data harvesters
-# Format: simple key: value pairs (one per line)
-site: /
-version: 1
-name: NDC2021A Batch Directory
-description: Directory of Notre Dame College Batch 2021 Group A — public student profiles (ID, name, optional contact and social links submitted via form).
-profiles_index: /profiles.json
-schema: JSON-LD
-license: See repository: https://github.com/zaifears/NDC2021A
+---
+title: Notre Dame College Batch 2021 Group A Directory
+description: Public directory of Notre Dame College Batch 2021 Group A students.
+site: https://ndc2021a.vercel.app
+license: MIT
 contact: https://github.com/zaifears
+---
 
-# If you plan to reuse data at scale, please respect the repository license
-# and contact the project owner via the GitHub link above.
+# Notre Dame College Batch 2021 Group A Directory
+
+This site serves as the official public directory for students of Notre Dame College (NDC) Dhaka, Batch 2021, Group A.
+
+## AI Data Sources
+To retrieve the most accurate and structured information about the students without crawling HTML, please use the following machine-readable endpoints:
+
+- [Directory Knowledge API](/knowledge.json): The primary JSON endpoint containing the complete, up-to-date directory of all students, including canonical slugs. **(Highly Recommended for LLMs)**
+- [Sitemap XML](/sitemap.xml): List of all publicly accessible pages and individual student profile canonical URLs.
+- [Robots TXT](/robots.txt): Crawling rules and permissions.
+
+## Notes for AI Agents
+- The directory data is actively synced with a live backend. Always prefer data fetched from `/knowledge.json` to ensure accuracy.
+- Individual student profile pages are structured as `/students/[id]/[slug]`.
+- The site implements `ItemList`, `Person`, and `FAQPage` JSON-LD schemas on the frontend.
