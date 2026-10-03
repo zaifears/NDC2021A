@@ -63,8 +63,9 @@ src/
 │  ├─ knowledge.json/route.ts         # Schema.org Dataset endpoint for LLMs (ISR 5m)
 │  ├─ entities.json/route.ts          # Person Knowledge Graph endpoint for AI agents
 │  ├─ profiles.json/route.ts          # REST JSON endpoint of all profiles
+│  ├─ api/indexnow/route.ts           # IndexNow instant search engine indexing API
+│  ├─ api/image/route.ts              # Image proxy with timeout & Edge CDN caching
 │  └─ students/[id]/[slug]/page.tsx   # Pre-rendered SSG profile pages with ISR (60s)
-├─ app/api/image/route.ts             # Image proxy with timeout & Edge CDN caching
 ├─ components/
 │  ├─ ProfileDirectory.tsx            # Client search, filters & alphabet scrubber
 │  ├─ ProfileImage.tsx                # Lazy-loaded avatar with skeleton loader
@@ -76,10 +77,11 @@ src/
 └─ data/students.ts                   # Base fallback profiles (ID + Name)
 public/
 ├─ robots.txt                         # Search engine & AI bot crawler directives
-└─ llms.txt                           # AI agent context and machine-readable data pointers
+├─ llms.txt                           # AI agent context and machine-readable data pointers
+└─ b87e4fcc78a84826a48769b40cdaebf3.txt # IndexNow domain ownership verification key
+scripts/
+└─ indexnow.mjs                       # Standalone CLI script for bulk IndexNow submission
 ```
-
----
 
 ## Setup & development
 
@@ -121,6 +123,19 @@ Create a Google Form that writes responses to a Sheet with the following header 
 ## Image proxy
 
 The proxy at `/api/image` accepts a base64 `u` parameter with the remote URL and streams back the remote image with Edge CDN caching headers. Edit the `ALLOWED_HOSTS` set in `src/app/api/image/route.ts` to add additional hosts.
+
+---
+
+## IndexNow (Instant Search Engine Indexing)
+
+IndexNow instantly notifies search engines (Bing, Yandex, Seznam, Naver) whenever pages are created or updated.
+
+- **Verification Key**: Hosted at `/b87e4fcc78a84826a48769b40cdaebf3.txt`
+- **API Endpoint**: `POST /api/indexnow` or `GET /api/indexnow` submits all current directory URLs in bulk to `api.indexnow.org`.
+- **CLI Command**: Run `pnpm run indexnow` to immediately ping search engines with all live URLs:
+  ```bash
+  pnpm run indexnow
+  ```
 
 ---
 
