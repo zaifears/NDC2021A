@@ -51,10 +51,11 @@ export async function POST(request: Request) {
     if (Array.isArray(body.urls) && body.urls.length > 0) {
       urlsToSubmit = body.urls;
     } else {
-      // Gather all directory URLs: homepage + all student profiles
+      // Gather all directory URLs: homepage, about page + all student profiles
       const profiles = await getProfiles();
       urlsToSubmit = [
         `${origin}/`,
+        `${origin}/about-ndc`,
         ...profiles.map(
           (p) => `${origin}/students/${encodeURIComponent(p.id)}/${encodeURIComponent(createSlug(p.name))}`
         ),
@@ -82,6 +83,7 @@ export async function GET() {
     const profiles = await getProfiles();
     const urlsToSubmit = [
       `${origin}/`,
+      `${origin}/about-ndc`,
       ...profiles.map(
         (p) => `${origin}/students/${encodeURIComponent(p.id)}/${encodeURIComponent(createSlug(p.name))}`
       ),

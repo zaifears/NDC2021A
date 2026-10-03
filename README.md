@@ -41,6 +41,7 @@
 ## Features
 
 - **Minimal UI**: Fast homepage with a modern file-manager-like list view and custom iOS-style Alphabet Scrubber.
+- **Notre Dame College Heritage & ID Decoder**: Dedicated `/about-ndc` resource detailing the 1949 history of Notre Dame College, memories of **Room 153** in the **Father Tim Building (Father Timm Bhaban)**, an interactive 8-digit College ID decoder, and embedded Google Maps campus coordinates.
 - **Enhanced visual polish**: Dynamic gradient monograms, taller list rows, frosted-glass search bar, Bento-Box styled profile cards, and subtle fade-in animations.
 - **Vercel Hobby Plan Optimized**: 100% static HTML pre-rendered on Edge CDN, reducing serverless execution count by ~99.9% and preventing 504 timeouts.
 - **Google Sheets polling**: Automatic fetching (revalidates every ~60s) via ISR. No redeploy required after new Google Form submissions.
@@ -59,6 +60,7 @@ src/
 ├─ app/
 │  ├─ layout.tsx                      # Root layout, metadata & global Schema.org graph
 │  ├─ page.tsx                        # Homepage (directory list + search + FAQ)
+│  ├─ about-ndc/page.tsx              # NDC history, Room 153 memories, ID explainer & map
 │  ├─ sitemap.xml/route.ts            # Dynamic W3C valid sitemap generation (ISR 1h)
 │  ├─ knowledge.json/route.ts         # Schema.org Dataset endpoint for LLMs (ISR 5m)
 │  ├─ entities.json/route.ts          # Person Knowledge Graph endpoint for AI agents
@@ -69,6 +71,7 @@ src/
 ├─ components/
 │  ├─ ProfileDirectory.tsx            # Client search, filters & alphabet scrubber
 │  ├─ ProfileImage.tsx                # Lazy-loaded avatar with skeleton loader
+│  ├─ NdcIdExplainer.tsx              # Interactive 8-digit College ID structure decoder
 │  ├─ StructuredData.tsx              # Organization, WebSite & CollectionPage JSON-LD
 │  ├─ ScrollToTop.tsx                 # Smooth scroll-to-top floating button
 │  └─ ScrollWrapper.tsx               # Client-only dynamic wrapper for scroll-to-top

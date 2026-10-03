@@ -20,7 +20,7 @@ function createSlug(name) {
 async function main() {
   console.log("🚀 Starting IndexNow URL submission for:", BASE_URL);
 
-  let urls = [`${BASE_URL}/`];
+  let urls = [`${BASE_URL}/`, `${BASE_URL}/about-ndc`];
 
   try {
     // Try to fetch live knowledge.json or sitemap

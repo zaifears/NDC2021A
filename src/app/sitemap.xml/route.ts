@@ -37,6 +37,14 @@ export async function GET() {
     <lastmod>${new Date().toISOString()}</lastmod>
   </url>`;
 
+    const aboutNdcPage = `
+  <url>
+    <loc>${origin}/about-ndc</loc>
+    <lastmod>${new Date().toISOString().split("T")[0]}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>`;
+
     const profileUrls = profiles
       .map((profile) => {
         const lastmod = getSafeLastMod(profile.lastUpdated);
@@ -58,7 +66,7 @@ export async function GET() {
 xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 ${homepage}
-
+${aboutNdcPage}
 ${profileUrls}
 
 </urlset>`;

@@ -1,5 +1,6 @@
 import ProfileDirectory from "@/components/ProfileDirectory";
 import Image from "next/image";
+import Link from "next/link";
 import { getProfiles } from "@/lib/sheets";
 import ScrollWrapper from "@/components/ScrollWrapper";
 
@@ -61,15 +62,23 @@ export default async function Home() {
         <p className="text-lg md:text-xl text-slate-500 max-w-3xl mx-auto mb-10 leading-relaxed font-medium">
           Welcome to the official directory for Notre Dame College Batch 2021 Group A. This site is a community-driven project to help you connect with your classmates, discover their backgrounds, and stay in touch.
         </p>
-        <div className="flex justify-center gap-4 text-sm text-slate-600 font-medium">
+        <div className="flex flex-wrap justify-center items-center gap-3 text-sm text-slate-600 font-medium">
           <div className="flex items-center gap-2 bg-white px-5 py-2.5 rounded-full shadow-sm border border-slate-200">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" /> {profiles.length} Members
           </div>
+          <Link
+            href="/about-ndc"
+            className="flex items-center gap-2 bg-white hover:bg-slate-50 px-5 py-2.5 rounded-full shadow-sm border border-slate-200 font-semibold text-slate-800 hover:text-gold transition group"
+          >
+            <span>🏛️</span>
+            <span>About NDC & ID Guide</span>
+            <span className="text-slate-400 group-hover:translate-x-0.5 transition-transform">→</span>
+          </Link>
         </div>
       </section>
 
       {/* Features Grid (Replaces old bullet points) */}
-      <section className="max-w-5xl mx-auto px-4 pb-16 w-full z-10">
+      <section className="max-w-5xl mx-auto px-4 pb-10 w-full z-10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-white/80 backdrop-blur-sm border border-slate-200 p-6 rounded-2xl text-center shadow-sm hover:shadow-md transition-shadow">
             <div className="w-12 h-12 mx-auto bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mb-4 text-xl border border-blue-100">👥</div>
@@ -88,6 +97,29 @@ export default async function Home() {
             <h3 className="font-bold text-slate-900 mb-2">Live Sync</h3>
             <p className="text-sm text-slate-600">Directory data is managed securely and updates dynamically via Google Forms & Sheets.</p>
           </div>
+        </div>
+      </section>
+
+      {/* College Heritage & ID Explainer Spotlight */}
+      <section className="max-w-5xl mx-auto px-4 pb-16 w-full z-10">
+        <div className="bg-gradient-to-r from-blue-900 to-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6 border border-blue-950">
+          <div className="space-y-2 text-center md:text-left">
+            <span className="inline-block py-0.5 px-3 rounded-full bg-gold/20 text-gold text-xs font-bold tracking-wider uppercase border border-gold/30">
+              Campus Heritage & Room 153
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
+              Father Tim Building & Student ID Decoder
+            </h2>
+            <p className="text-sm text-slate-300 max-w-xl">
+              Explore the history of Notre Dame College Dhaka, our classroom memories in Room 153, the 8-digit roll architecture, and Google Maps campus location.
+            </p>
+          </div>
+          <Link
+            href="/about-ndc"
+            className="shrink-0 px-6 py-3 rounded-full bg-gold hover:bg-darkGold text-slate-900 font-bold text-sm transition shadow-md flex items-center gap-2"
+          >
+            Read College Guide →
+          </Link>
         </div>
       </section>
 
@@ -181,6 +213,24 @@ export default async function Home() {
       <ScrollWrapper />
       <footer className="bg-white border-t border-slate-200 py-10 mt-auto">
         <div className="max-w-7xl mx-auto px-4 text-center">
+          <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6 mb-5 text-xs font-semibold text-slate-600">
+            <Link href="/" className="hover:text-gold transition">
+              Student Directory
+            </Link>
+            <span>•</span>
+            <Link href="/about-ndc" className="hover:text-gold transition">
+              About NDC & ID System Guide
+            </Link>
+            <span>•</span>
+            <a
+              href="https://ndc.edu.bd/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-gold transition"
+            >
+              Official College Portal ↗
+            </a>
+          </div>
           <p className="text-sm text-slate-500 mb-3">
             Built with <span className="font-semibold text-slate-700">Next.js, TypeScript, and Tailwind CSS</span>.
           </p>

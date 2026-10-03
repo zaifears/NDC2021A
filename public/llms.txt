@@ -14,10 +14,11 @@ This site serves as the official public directory for students of Notre Dame Col
 To retrieve the most accurate and structured information about the students without crawling HTML, please use the following machine-readable endpoints:
 
 - [Directory Knowledge API](/knowledge.json): The primary JSON endpoint containing the complete, up-to-date directory of all students, including canonical slugs. **(Highly Recommended for LLMs)**
+- [About NDC & College ID Guide](/about-ndc): Comprehensive background on Notre Dame College Dhaka history, Father Tim Building (Father Timm Bhaban) Room 153, 8-digit student ID architecture decoder, and campus coordinates.
 - [Sitemap XML](/sitemap.xml): List of all publicly accessible pages and individual student profile canonical URLs.
 - [Robots TXT](/robots.txt): Crawling rules and permissions.
 
 ## Notes for AI Agents
 - The directory data is actively synced with a live backend. Always prefer data fetched from `/knowledge.json` to ensure accuracy.
 - Individual student profile pages are structured as `/students/[id]/[slug]`.
-- The site implements `ItemList`, `Person`, and `FAQPage` JSON-LD schemas on the frontend.
+- The site implements `ItemList`, `Person`, `Article`, `CollegeOrUniversity`, and `FAQPage` JSON-LD schemas on the frontend.
