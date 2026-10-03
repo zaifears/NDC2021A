@@ -183,7 +183,7 @@ export default function ProfileDirectory({ profiles }: { profiles: Profile[] }) 
     [endDrag]
   );
 
-  // Quick tap / keyboard activation — flashes the bubble briefly then guarantees removal
+  // Quick tap / keyboard activation: flashes the bubble briefly then guarantees removal
   const flashLetter = useCallback(
     (letter: string, visibleMs = 500) => {
       if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
@@ -307,7 +307,7 @@ export default function ProfileDirectory({ profiles }: { profiles: Profile[] }) 
       <div className="max-w-4xl mx-auto relative pr-6 sm:pr-10">
         <div ref={listStartRef} className="absolute top-0 h-px w-full" />
 
-        {/* Alphabet Scrubber — fixed to viewport, fades in once you scroll to the names */}
+        {/* Alphabet Scrubber: fixed to viewport, fades in once you scroll to the names */}
         {activeFilter !== "recent" && letters.length > 1 && (
           <div
             className={`fixed right-1 sm:right-3 top-1/2 -translate-y-1/2 z-30 flex flex-col items-center
@@ -340,7 +340,7 @@ export default function ProfileDirectory({ profiles }: { profiles: Profile[] }) 
           </div>
         )}
 
-        {/* Big center letter bubble — frosted glass, gold gradient ring, guaranteed to vanish */}
+        {/* Big center letter bubble: frosted glass, gold gradient ring, guaranteed to vanish */}
         {dragLetter && (
           <div
             className={`fixed inset-0 z-40 flex items-center justify-center pointer-events-none

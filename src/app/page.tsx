@@ -101,22 +101,22 @@ export default async function Home() {
       </section>
 
       {/* College Heritage & ID Explainer Spotlight */}
-      <section className="max-w-5xl mx-auto px-4 pb-16 w-full z-10">
-        <div className="bg-gradient-to-r from-blue-900 to-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6 border border-blue-950">
-          <div className="space-y-2 text-center md:text-left">
-            <span className="inline-block py-0.5 px-3 rounded-full bg-gold/20 text-gold text-xs font-bold tracking-wider uppercase border border-gold/30">
-              Campus Heritage & Room 153
+      <section className="max-w-5xl mx-auto px-4 pb-12 sm:pb-16 w-full z-10">
+        <div className="bg-gradient-to-r from-blue-900 to-slate-900 text-white rounded-2xl sm:rounded-3xl p-5 sm:p-7 md:p-8 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-5 sm:gap-6 border border-blue-950">
+          <div className="space-y-2 text-left">
+            <span className="inline-block py-0.5 px-2.5 sm:px-3 rounded-full bg-gold/20 text-gold text-[11px] sm:text-xs font-bold tracking-wider uppercase border border-gold/30">
+              Campus History & Room 153
             </span>
-            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
-              Father Tim Building & Student ID Decoder
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-white">
+              Father Tim Building & College ID Guide
             </h2>
-            <p className="text-sm text-slate-300 max-w-xl">
-              Explore the history of Notre Dame College Dhaka, our classroom memories in Room 153, the 8-digit roll architecture, and Google Maps campus location.
+            <p className="text-xs sm:text-sm text-slate-300 max-w-xl">
+              Learn about Notre Dame College, our classroom details in Father Tim Building Room 153, the 8-digit roll number breakdown, and campus location.
             </p>
           </div>
           <Link
             href="/about-ndc"
-            className="shrink-0 px-6 py-3 rounded-full bg-gold hover:bg-darkGold text-slate-900 font-bold text-sm transition shadow-md flex items-center gap-2"
+            className="shrink-0 px-5 sm:px-6 py-2.5 sm:py-3 rounded-full bg-gold hover:bg-darkGold text-slate-900 font-bold text-xs sm:text-sm transition shadow-md flex items-center gap-2 self-start md:self-auto"
           >
             Read College Guide →
           </Link>

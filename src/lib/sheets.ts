@@ -103,7 +103,7 @@ export async function getProfiles(): Promise<Profile[]> {
 
   if (!GOOGLE_SHEET_ID || !GOOGLE_SHEETS_API_KEY) {
     console.warn(
-      "⚠️  Google Sheets env vars not set — showing base student list. " +
+      "⚠️  Google Sheets env vars not set: showing base student list. " +
         "Set GOOGLE_SHEET_ID and GOOGLE_SHEETS_API_KEY in .env.local"
     );
     return Array.from(profileMap.values());

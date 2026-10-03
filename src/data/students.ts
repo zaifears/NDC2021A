@@ -1,4 +1,4 @@
-// Base list of all 132 students — always displayed regardless of form submission
+// Base list of all 132 students: always displayed regardless of form submission
 export const BASE_STUDENTS: { id: string; name: string }[] = [
   { id: "62101001", name: "Ullas Nokrek" },
   { id: "62101002", name: "Rahat Rahman" },

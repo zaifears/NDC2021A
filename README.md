@@ -2,9 +2,9 @@
 
   <img src="https://i.postimg.cc/RFmm10pB/badge.png" alt="NDC Badge" width="240" />
 
-  <h1>NDC 2021 Group A — Batch Directory</h1>
+  <h1>NDC 2021 Group A - Batch Directory</h1>
 
-  <p class="lead">Community directory for Notre Dame College Batch 2021 Group A — built with Next.js, TypeScript, and Tailwind CSS.</p>
+  <p class="lead">Community directory for Notre Dame College Batch 2021 Group A, built with Next.js, TypeScript, and Tailwind CSS.</p>
 
   <br />
 
@@ -145,12 +145,12 @@ IndexNow instantly notifies search engines (Bing, Yandex, Seznam, Naver) wheneve
 ## Notes
 
 - `formatDate` helper correctly parses the local DD/MM/YYYY Sheets timestamp into international standard formats for UI display and sitemaps.
-- The global navbar was intentionally removed — the profile page has a sticky back button on desktop for a cleaner app-like feel.
+- The global navbar was intentionally removed; the profile page has a sticky back button on desktop for a cleaner app-like feel.
 - Deployment: Recommended Vercel (Hobby plan fully supported with zero downtime via static pre-rendering).
 
 ---
 
 ## Credits
 
-Built and maintained by Md Al Shahoriar Hossain — [shahoriar.bd](https://shahoriar.bd) (62101030)
+Built and maintained by Md Al Shahoriar Hossain - [shahoriar.bd](https://shahoriar.bd) (62101030)
 

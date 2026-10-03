@@ -64,13 +64,13 @@ export async function generateMetadata(props: any): Promise<any> {
       type: "profile",
       url: `/students/${profile.id}/${correctSlug}`,
       title: `${profile.name} | Notre Dame College Batch 2021 Group A`,
-      description: profile.description || `${profile.name} — Notre Dame College Batch 2021 Group A`,
+      description: profile.description || `${profile.name} | Notre Dame College Batch 2021 Group A`,
       images: [{ url: image, width: 1200, height: 630, alt: profile.name }],
     },
     twitter: {
       card: "summary_large_image",
       title: profile.name,
-      description: profile.description || `${profile.name} — Notre Dame College Batch 2021 Group A`,
+      description: profile.description || `${profile.name} | Notre Dame College Batch 2021 Group A`,
       images: [image],
     },
   };
@@ -281,7 +281,7 @@ export default async function ProfilePage(props: any) {
                 <div className="mt-8 pt-5 border-t border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                   <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest pl-1">Last Updated</span>
                   <span className="font-mono text-xs sm:text-sm text-slate-500 bg-slate-100/80 px-3 py-1.5 rounded-lg border border-slate-200/50">
-                    {profile.lastUpdated ? formatDate(profile.lastUpdated) : "—"}
+                    {profile.lastUpdated ? formatDate(profile.lastUpdated) : "-"}
                   </span>
                 </div>
               </section>
