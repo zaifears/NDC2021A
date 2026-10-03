@@ -29,21 +29,26 @@
 ## Quick summary
 
 - List-style homepage with instant search by name or ID.
-- Profile pages load full details and the user image (images are not loaded on the homepage to optimize bandwidth).
-- Google Sheets integration with automatic merging against a base student list.
-- Dynamic SEO features including automated Breadcrumb JSON-LD and a live, auto-generating `sitemap.xml`.
-- Proxy-based image fetching for better compatibility with Google Drive and other hosts.
+- **Static Site Generation (SSG)**: Pre-renders all 132 student profile pages at build time with Incremental Static Regeneration (ISR), optimized for Vercel Hobby plan execution without cold starts or concurrency timeouts.
+- Profile pages load full details, social links, and lazy-loaded photos (images are bypassed on the homepage to optimize bandwidth).
+- Google Sheets integration with automatic merging and resilient in-memory fallback caching.
+- Dynamic SEO features including Schema.org JSON-LD (Person, Breadcrumbs, WebSite, Organization, FAQ) and live W3C-compliant `sitemap.xml`.
+- **LLM & AI-Agent friendly**: Includes machine-readable `/llms.txt`, `/knowledge.json` (Dataset Schema), and `/entities.json` (Person Knowledge Graph) with dedicated crawler rules in `robots.txt`.
+- Hardened proxy-based image fetching (`/api/image`) with 6s timeout protection and 7-day Vercel Edge CDN caching.
 
 ---
 
 ## Features
 
-- Minimal UI: Fast homepage with a modern file-manager-like list view.
-- Enhanced visual polish: Dynamic gradient monograms, taller list rows, frosted-glass search bar, Bento-Box styled profile cards, and subtle fade-in animations.
-- Google Sheets polling: Automatic fetching (revalidates every ~60s) via ISR. No redeploy required after new Google Form submissions.
-- Image proxy: Small `GET /api/image` proxy to stream allowed remote images to the browser, with automated caching headers for Vercel edge optimization.
-- Drive link normalization: Google Drive and PostImage links are supported for profile images; Drive links are automatically extracted and converted to direct-view URLs.
-- Native routing: Strict canonical URL enforcement and 308 redirects using Next.js native navigation logic.
+- **Minimal UI**: Fast homepage with a modern file-manager-like list view and custom iOS-style Alphabet Scrubber.
+- **Enhanced visual polish**: Dynamic gradient monograms, taller list rows, frosted-glass search bar, Bento-Box styled profile cards, and subtle fade-in animations.
+- **Vercel Hobby Plan Optimized**: 100% static HTML pre-rendered on Edge CDN, reducing serverless execution count by ~99.9% and preventing 504 timeouts.
+- **Google Sheets polling**: Automatic fetching (revalidates every ~60s) via ISR. No redeploy required after new Google Form submissions.
+- **Resilient Fallback**: In-memory cache protects against temporary Google API rate limits or quota blips; prevents infinite 308 redirect loops.
+- **Quality-Gated Indexing**: Filled profiles are indexed with rich snippets; unfilled profiles are protected against "Thin Content / Soft 404" search penalties.
+- **Image proxy**: Secure `GET /api/image` streaming with host allowlist, timeout guards, graceful fallback redirects to `/badge.png`, and Edge CDN caching headers.
+- **Drive link normalization**: Google Drive and PostImage links are supported for profile images; Drive links are automatically converted to direct-view URLs.
+- **Native routing**: Strict canonical URL enforcement and permanent redirects using Next.js native navigation logic.
 
 ---
 
@@ -52,18 +57,26 @@
 ```plaintext
 src/
 ├─ app/
-│  ├─ layout.tsx
-│  ├─ page.tsx                        # Homepage (list + search)
-│  ├─ sitemap.xml/route.ts            # Dynamic W3C valid sitemap generation
-│  ├─ knowledge.json/route.ts         # JSON API endpoint for LLM context
-│  └─ students/[id]/[slug]/page.tsx   # Student profile details
-├─ app/api/image/route.ts             # Image proxy with caching headers
+│  ├─ layout.tsx                      # Root layout, metadata & global Schema.org graph
+│  ├─ page.tsx                        # Homepage (directory list + search + FAQ)
+│  ├─ sitemap.xml/route.ts            # Dynamic W3C valid sitemap generation (ISR 1h)
+│  ├─ knowledge.json/route.ts         # Schema.org Dataset endpoint for LLMs (ISR 5m)
+│  ├─ entities.json/route.ts          # Person Knowledge Graph endpoint for AI agents
+│  ├─ profiles.json/route.ts          # REST JSON endpoint of all profiles
+│  └─ students/[id]/[slug]/page.tsx   # Pre-rendered SSG profile pages with ISR (60s)
+├─ app/api/image/route.ts             # Image proxy with timeout & Edge CDN caching
 ├─ components/
-│  ├─ ProfileDirectory.tsx
-│  └─ ProfileCard.tsx
-├─ lib/sheets.ts                      # Google Sheets fetch + normalization
+│  ├─ ProfileDirectory.tsx            # Client search, filters & alphabet scrubber
+│  ├─ ProfileImage.tsx                # Lazy-loaded avatar with skeleton loader
+│  ├─ StructuredData.tsx              # Organization, WebSite & CollectionPage JSON-LD
+│  ├─ ScrollToTop.tsx                 # Smooth scroll-to-top floating button
+│  └─ ScrollWrapper.tsx               # Client-only dynamic wrapper for scroll-to-top
+├─ lib/sheets.ts                      # Google Sheets fetch, in-memory cache & deduplication
 ├─ lib/slug.ts                        # Centralized canonical slug generator
 └─ data/students.ts                   # Base fallback profiles (ID + Name)
+public/
+├─ robots.txt                         # Search engine & AI bot crawler directives
+└─ llms.txt                           # AI agent context and machine-readable data pointers
 ```
 
 ---
@@ -81,6 +94,18 @@ Open http://localhost:3000
 
 ---
 
+## Environment Variables
+
+Copy `.env.example` to `.env.local`:
+
+```bash
+NEXT_PUBLIC_BASE_URL=https://ndc2021a.vercel.app
+GOOGLE_SHEET_ID=your_spreadsheet_id_here
+GOOGLE_SHEETS_API_KEY=your_api_key_here
+```
+
+---
+
 ## Google Sheets / Google Form
 
 Create a Google Form that writes responses to a Sheet with the following header (Row 1):
@@ -95,7 +120,7 @@ Create a Google Form that writes responses to a Sheet with the following header 
 
 ## Image proxy
 
-The proxy at `/api/image` accepts a base64 `u` parameter with the remote URL and streams back the remote image. Edit the `ALLOWED_HOSTS` set in `src/app/api/image/route.ts` to add additional hosts.
+The proxy at `/api/image` accepts a base64 `u` parameter with the remote URL and streams back the remote image with Edge CDN caching headers. Edit the `ALLOWED_HOSTS` set in `src/app/api/image/route.ts` to add additional hosts.
 
 ---
 
@@ -103,12 +128,11 @@ The proxy at `/api/image` accepts a base64 `u` parameter with the remote URL and
 
 - `formatDate` helper correctly parses the local DD/MM/YYYY Sheets timestamp into international standard formats for UI display and sitemaps.
 - The global navbar was intentionally removed — the profile page has a sticky back button on desktop for a cleaner app-like feel.
-- Deployment: Recommended Vercel.
-- Ensure environment variables are set for Google Sheets access. No middleware is required; caching and redirects are handled natively at the page level.
+- Deployment: Recommended Vercel (Hobby plan fully supported with zero downtime via static pre-rendering).
 
 ---
 
 ## Credits
 
-Built and maintained by Md Al Shahoriar Hossain — shahoriar.vercel.app (62101030)
+Built and maintained by Md Al Shahoriar Hossain — [shahoriar.bd](https://shahoriar.bd) (62101030)
 

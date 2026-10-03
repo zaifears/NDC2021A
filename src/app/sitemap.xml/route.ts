@@ -2,9 +2,11 @@ import { NextResponse } from "next/server";
 import { getProfiles } from "@/lib/sheets";
 import { createSlug } from "@/lib/slug";
 
-// Helper to safely parse Google Sheets dates for the sitemap XML
+export const revalidate = 3600;
+
+// Helper to safely parse Google Sheets dates for the sitemap XML (W3C standard YYYY-MM-DD)
 function getSafeLastMod(raw: string) {
-  if (!raw) return new Date().toISOString();
+  if (!raw) return new Date().toISOString().split("T")[0];
   
   // Try to extract DD/MM/YYYY
   const m = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
@@ -16,11 +18,10 @@ function getSafeLastMod(raw: string) {
   // Standard JS parse fallback
   const parsed = Date.parse(raw);
   if (!isNaN(parsed)) {
-    return new Date(parsed).toISOString();
+    return new Date(parsed).toISOString().split("T")[0];
   }
   
-  // Ultimate fallback to prevent crashes
-  return new Date().toISOString();
+  return new Date().toISOString().split("T")[0];
 }
 
 export async function GET() {

@@ -6,11 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint ."
   },
   "dependencies": {
     "@vercel/analytics": "^1.6.1",
-    "ndc2021a-batch-directory": "link:",
     "next": "^16.1.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"

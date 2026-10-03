@@ -2,7 +2,10 @@ import { NextResponse } from "next/server";
 import { getProfiles } from "@/lib/sheets";
 import { createSlug } from "@/lib/slug";
 
+export const revalidate = 300;
+
 export async function GET() {
+  const origin = process.env.NEXT_PUBLIC_BASE_URL || "https://ndc2021a.vercel.app";
   const profiles = await getProfiles();
 
   return NextResponse.json(
@@ -16,7 +19,7 @@ export async function GET() {
       description:
         "Public directory of Notre Dame College Batch 2021 Group A students.",
 
-      url: "https://ndc2021a.vercel.app",
+      url: origin,
 
       version: "1.0",
 
@@ -44,7 +47,7 @@ export async function GET() {
 
         description: profile.description,
 
-        url: `https://ndc2021a.vercel.app/students/${profile.id}/${createSlug(profile.name)}`,
+        url: `${origin}/students/${profile.id}/${createSlug(profile.name)}`,
 
         image: profile.image,
 
@@ -60,6 +63,7 @@ export async function GET() {
     {
       headers: {
         "Content-Type": "application/json",
+        "Cache-Control": "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400",
       },
     }
   );

@@ -1,11 +1,22 @@
 import ProfileImage from "@/components/ProfileImage";
-import { getProfileById } from "@/lib/sheets";
+import { getProfileById, getProfiles } from "@/lib/sheets";
 import Image from "next/image";
 import Link from "next/link";
 // @ts-ignore: Bypass strict module resolution mismatch for Next.js imports
 import { notFound, permanentRedirect } from "next/navigation";
 import { createSlug } from "@/lib/slug";
 
+// Enable Incremental Static Regeneration (ISR) and static pre-rendering
+export const revalidate = 60;
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+  const profiles = await getProfiles();
+  return profiles.map((p) => ({
+    id: p.id,
+    slug: createSlug(p.name),
+  }));
+}
 
 export async function generateMetadata(props: any): Promise<any> {
   const { id } = await props.params;
@@ -19,12 +30,36 @@ export async function generateMetadata(props: any): Promise<any> {
     ? `/api/image?u=${Buffer.from(profile.image).toString("base64")}`
     : "/badge.png";
 
+  const isFilled = Boolean(
+    profile.description ||
+    profile.image ||
+    profile.linkedin ||
+    profile.facebook ||
+    profile.email ||
+    profile.phone
+  );
+
   return {
     title: `${profile.name} | Notre Dame College Batch 2021 Group A`,
     description:
       profile.description ||
       `${profile.name} is a student of Notre Dame College Dhaka Batch 2021 Group A. View profile, contact information, and public social links.`,
     alternates: { canonical: `/students/${profile.id}/${correctSlug}` },
+    robots: isFilled
+      ? {
+          index: true,
+          follow: true,
+          googleBot: {
+            index: true,
+            follow: true,
+            "max-image-preview": "large",
+            "max-snippet": -1,
+          },
+        }
+      : {
+          index: false,
+          follow: true,
+        },
     openGraph: {
       type: "profile",
       url: `/students/${profile.id}/${correctSlug}`,
@@ -66,8 +101,11 @@ export default async function ProfilePage(props: any) {
 
   const correctSlug = createSlug(profile.name);
   if (slug !== correctSlug) {
-    // Permanent redirect (308) to canonical URL when slug mismatches live data
-    permanentRedirect(`/students/${id}/${correctSlug}`);
+    // Only execute permanent 308 redirect if we have updated live data from Google Sheets.
+    // If the data is an unupdated fallback record, avoid redirect loops when the API blips.
+    if (profile.lastUpdated) {
+      permanentRedirect(`/students/${id}/${correctSlug}`);
+    }
   }
 
   const proxiedImage = profile.image
@@ -161,7 +199,10 @@ export default async function ProfilePage(props: any) {
                 {profile.description ? (
                   <p className="text-slate-700 leading-relaxed sm:leading-loose whitespace-pre-wrap text-[15px]">{profile.description}</p>
                 ) : (
-                  <p className="text-slate-400 italic">No description provided.</p>
+                  <div className="rounded-2xl bg-slate-50 border border-slate-100 p-5 text-center">
+                    <p className="text-slate-600 font-medium text-sm mb-1">Notre Dame College Batch 2021 Group A Classmate</p>
+                    <p className="text-slate-400 text-xs">Profile details have not been submitted yet.</p>
+                  </div>
                 )}
               </section>
 

@@ -23,7 +23,7 @@ export default function ProfileImage({ src, alt }: { src: string; alt: string })
         className={`object-cover transition-opacity duration-700 ease-in-out ${
           isLoaded ? "opacity-100" : "opacity-0"
         }`}
-        onLoadingComplete={() => setIsLoaded(true)}
+        onLoad={() => setIsLoaded(true)}
         sizes="(max-width: 768px) 176px, 208px"
         priority
       />

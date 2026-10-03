@@ -31,17 +31,36 @@ export async function GET(request: Request) {
   }
 
   try {
-    const res = await fetch(url);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 6000);
+
+    const res = await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      },
+    });
+    clearTimeout(timeoutId);
+
+    if (!res.ok) {
+      // Gracefully redirect to fallback badge on remote 403/429/404/500 rather than crashing
+      return NextResponse.redirect(new URL('/badge.png', request.url));
+    }
+
     const contentType = res.headers.get('content-type') || 'application/octet-stream';
     const body = res.body;
+
+    // Cache on Edge CDN for 7 days (s-maxage=604800) so subsequent visitors hit Edge Cache with 0 serverless cost
     return new NextResponse(body, {
-      status: res.status,
+      status: 200,
       headers: {
         'content-type': contentType,
-        'cache-control': 'public, max-age=3600',
+        'cache-control': 'public, max-age=86400, s-maxage=604800, stale-while-revalidate=86400',
       },
     });
   } catch (err: any) {
-    return NextResponse.json({ error: String(err?.message ?? err) }, { status: 502 });
+    // Graceful fallback to default badge on timeout or network error
+    return NextResponse.redirect(new URL('/badge.png', request.url));
   }
 }

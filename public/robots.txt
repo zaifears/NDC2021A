@@ -1,6 +1,20 @@
 User-agent: *
 Allow: /
-Sitemap: /sitemap.xml
 
-# Crawl-delay is optional; search engines may ignore it. Keep polite crawling.
-# Crawl-delay: 10
+# Dedicated directives for AI & LLM Search Agents
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://ndc2021a.vercel.app/sitemap.xml

@@ -86,10 +86,13 @@ function normalizeImageUrl(raw: string): string {
   return trimmed;
 }
 
+// Memory cache to survive temporary Google API outages or rate limits (429/500/timeout)
+let memoryCachedProfiles: Profile[] | null = null;
+
 /**
  * Fetches all profiles from the Google Sheet and merges with the base student list.
  * Students who haven't submitted the form still appear with their ID and name.
- * Falls back to base student list if env vars are missing or fetch fails.
+ * Falls back to last known good memory cache or base student list if env vars are missing or fetch fails.
  */
 export async function getProfiles(): Promise<Profile[]> {
   // Start with all base students as default profiles
@@ -111,6 +114,7 @@ export async function getProfiles(): Promise<Profile[]> {
 
     const res = await fetch(url, {
       next: { revalidate: 60 }, // ISR: re-fetch from Google Sheets every 60 seconds
+      signal: AbortSignal.timeout(6000), // Prevent hanging requests if Google API stalls
     } as any);
 
     if (!res.ok) {
@@ -164,9 +168,15 @@ export async function getProfiles(): Promise<Profile[]> {
       });
     }
 
-    return Array.from(profileMap.values());
+    const merged = Array.from(profileMap.values());
+    memoryCachedProfiles = merged;
+    return merged;
   } catch (error) {
-    console.error("❌ Failed to fetch from Google Sheets, showing base list:", error);
+    console.error("❌ Failed to fetch from Google Sheets:", error);
+    if (memoryCachedProfiles && memoryCachedProfiles.length > 0) {
+      console.warn("⚠️ Serving last known good profiles from memory cache.");
+      return memoryCachedProfiles;
+    }
     return Array.from(profileMap.values());
   }
 }

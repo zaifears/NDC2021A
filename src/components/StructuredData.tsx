@@ -1,37 +1,39 @@
 export default function StructuredData() {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://ndc2021a.vercel.app";
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
       {
         "@type": "WebSite",
-        "@id": "https://ndc2021a.vercel.app/#website",
-        url: "https://ndc2021a.vercel.app",
+        "@id": `${baseUrl}/#website`,
+        url: baseUrl,
         name: "Notre Dame College Batch 2021 Group A Student Directory",
         description:
           "Official public directory of Notre Dame College Batch 2021 Group A students.",
         inLanguage: "en",
 
         publisher: {
-          "@id": "https://ndc2021a.vercel.app/#organization",
+          "@id": `${baseUrl}/#organization`,
         },
 
         potentialAction: {
           "@type": "SearchAction",
           target:
-            "https://ndc2021a.vercel.app/?search={search_term_string}",
+            `${baseUrl}/?search={search_term_string}`,
           "query-input": "required name=search_term_string",
         },
       },
 
       {
         "@type": "Organization",
-        "@id": "https://ndc2021a.vercel.app/#organization",
+        "@id": `${baseUrl}/#organization`,
         name: "NDC 2021 Group A Community",
-        url: "https://ndc2021a.vercel.app",
+        url: baseUrl,
 
         logo: {
           "@type": "ImageObject",
-          url: "https://ndc2021a.vercel.app/badge.png",
+          url: `${baseUrl}/badge.png`,
         },
 
         sameAs: [
@@ -42,15 +44,15 @@ export default function StructuredData() {
 
       {
         "@type": "CollegeOrUniversity",
-        "@id": "https://ndc2021a.vercel.app/#college",
+        "@id": `${baseUrl}/#college`,
         name: "Notre Dame College, Dhaka",
       },
 
       {
         "@type": "CollectionPage",
-        "@id": "https://ndc2021a.vercel.app/#directory",
+        "@id": `${baseUrl}/#directory`,
 
-        url: "https://ndc2021a.vercel.app",
+        url: baseUrl,
 
         name: "Notre Dame College Batch 2021 Group A Directory",
 
@@ -58,15 +60,15 @@ export default function StructuredData() {
           "Browse public student profiles of Notre Dame College Batch 2021 Group A.",
 
         isPartOf: {
-          "@id": "https://ndc2021a.vercel.app/#website",
+          "@id": `${baseUrl}/#website`,
         },
 
         about: {
-          "@id": "https://ndc2021a.vercel.app/#college",
+          "@id": `${baseUrl}/#college`,
         },
 
         publisher: {
-          "@id": "https://ndc2021a.vercel.app/#organization",
+          "@id": `${baseUrl}/#organization`,
         },
       },
     ],

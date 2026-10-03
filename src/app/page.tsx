@@ -1,5 +1,9 @@
-import HomeSchema from "@/components/HomeSchema";
 import ProfileDirectory from "@/components/ProfileDirectory";
+import Image from "next/image";
+import { getProfiles } from "@/lib/sheets";
+import ScrollWrapper from "@/components/ScrollWrapper";
+
+export const revalidate = 60;
 
 const faqSchema = {
   "@context": "https://schema.org",
@@ -31,16 +35,11 @@ const faqSchema = {
     }
   ]
 };
-import Image from "next/image";
-import { getProfiles } from "@/lib/sheets";
-import ScrollWrapper from "@/components/ScrollWrapper";
-
 
 export default async function Home() {
   const profiles = await getProfiles();
   return (
     <main className="min-h-screen bg-slate-50 relative overflow-hidden flex flex-col">
-      <HomeSchema />
       <script 
         type="application/ld+json" 
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} 
