@@ -2,6 +2,12 @@
 
 import { useState } from "react";
 
+const PRESETS = [
+  { id: "62101030", label: "62101030 (Group A)" },
+  { id: "12101005", label: "12101005 (Science)" },
+  { id: "42101018", label: "42101018 (Humanities)" },
+];
+
 export default function NdcIdExplainer() {
   const [inputRoll, setInputRoll] = useState("62101030");
 
@@ -39,27 +45,20 @@ export default function NdcIdExplainer() {
   const serialRoll = isValidLength ? parseInt(digits678, 10) : null;
 
   return (
-    <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200 shadow-sm p-4 sm:p-6 md:p-8 my-6 sm:my-8 overflow-hidden">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5 pb-5 border-b border-slate-100">
+    <div className="decoder">
+      <div className="decoder__top">
         <div>
-          <span className="text-[11px] font-bold uppercase tracking-widest text-gold bg-gold/10 px-3 py-1 rounded-full border border-gold/20 inline-block">
-            Student ID Guide
-          </span>
-          <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 mt-2">
-            Notre Dame College Student ID Breakdown
-          </h3>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Every NDC student receives an 8-digit roll number. Here is how each section is formed:
+          <h2>Notre Dame College student ID breakdown</h2>
+          <p className="lead" style={{ marginTop: "var(--space-md)" }}>
+            Every NDC student receives an 8-digit roll number. Here is how each section is formed.
           </p>
         </div>
 
-        {/* Input box */}
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <label htmlFor="id-input" className="text-xs font-semibold text-slate-600 sm:hidden shrink-0">
-            Enter ID:
-          </label>
+        <div className="decoder__input">
+          <label htmlFor="id-input">Enter an 8-digit ID</label>
           <input
             id="id-input"
+            className="field field--mono"
             type="text"
             inputMode="numeric"
             pattern="[0-9]*"
@@ -67,139 +66,100 @@ export default function NdcIdExplainer() {
             value={inputRoll}
             onChange={(e) => setInputRoll(e.target.value.replace(/\D/g, ""))}
             placeholder="e.g. 62101030"
-            className="w-full sm:w-36 font-mono text-center text-base sm:text-lg font-bold py-2 px-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold bg-slate-50"
+            aria-describedby="id-result"
           />
         </div>
       </div>
 
-      {/* Preset example buttons */}
-      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-6">
-        <span className="text-xs font-semibold text-slate-400 w-full sm:w-auto mb-0.5 sm:mb-0">Examples:</span>
-        <button
-          onClick={() => setInputRoll("62101030")}
-          className={`text-xs font-mono font-semibold px-2.5 py-1.5 rounded-lg transition active:scale-95 ${
-            inputRoll === "62101030"
-              ? "bg-slate-900 text-white shadow-sm"
-              : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-          }`}
-        >
-          62101030 (Group A)
-        </button>
-        <button
-          onClick={() => setInputRoll("12101005")}
-          className={`text-xs font-mono font-semibold px-2.5 py-1.5 rounded-lg transition active:scale-95 ${
-            inputRoll === "12101005"
-              ? "bg-slate-900 text-white shadow-sm"
-              : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-          }`}
-        >
-          12101005 (Science)
-        </button>
-        <button
-          onClick={() => setInputRoll("42101018")}
-          className={`text-xs font-mono font-semibold px-2.5 py-1.5 rounded-lg transition active:scale-95 ${
-            inputRoll === "42101018"
-              ? "bg-slate-900 text-white shadow-sm"
-              : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-          }`}
-        >
-          42101018 (Humanities)
-        </button>
+      <div className="decoder__presets">
+        <span className="label" id="presets-label">
+          Examples
+        </span>
+        <div className="seg" role="group" aria-labelledby="presets-label">
+          {PRESETS.map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              aria-pressed={inputRoll === p.id}
+              onClick={() => setInputRoll(p.id)}
+              className="num"
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {isValidLength ? (
-        <div className="space-y-5 sm:space-y-6">
-          {/* Visual Breakdown Strip */}
-          <div className="grid grid-cols-4 gap-1.5 sm:gap-3 max-w-2xl mx-auto text-center font-mono select-none">
-            {/* Box 1 */}
-            <div className="bg-blue-50 border-2 border-blue-300 rounded-xl sm:rounded-2xl p-2 sm:p-3.5">
-              <span className="block text-xl sm:text-3xl md:text-4xl font-extrabold text-blue-700">{digit1}</span>
-              <span className="block text-[10px] sm:text-xs font-bold text-blue-600 uppercase tracking-wide mt-1">Subject</span>
-            </div>
+      <div id="id-result" aria-live="polite">
+        {isValidLength ? (
+          <div style={{ display: "grid", gap: "var(--space-xl)" }}>
+            <ol className="decoder__digits" aria-label="The four parts of the ID">
+              <li>
+                <b>{digit1}</b>
+                <span className="label">Subject</span>
+              </li>
+              <li>
+                <b>{digits23}</b>
+                <span className="label">Batch</span>
+              </li>
+              <li>
+                <b>{digits45}</b>
+                <span className="label">Group</span>
+              </li>
+              <li>
+                <b>{digits678}</b>
+                <span className="label">Roll</span>
+              </li>
+            </ol>
 
-            {/* Box 2 */}
-            <div className="bg-purple-50 border-2 border-purple-300 rounded-xl sm:rounded-2xl p-2 sm:p-3.5">
-              <span className="block text-xl sm:text-3xl md:text-4xl font-extrabold text-purple-700">{digits23}</span>
-              <span className="block text-[10px] sm:text-xs font-bold text-purple-600 uppercase tracking-wide mt-1">Batch</span>
-            </div>
-
-            {/* Box 3 */}
-            <div className="bg-emerald-50 border-2 border-emerald-300 rounded-xl sm:rounded-2xl p-2 sm:p-3.5">
-              <span className="block text-xl sm:text-3xl md:text-4xl font-extrabold text-emerald-700">{digits45}</span>
-              <span className="block text-[10px] sm:text-xs font-bold text-emerald-600 uppercase tracking-wide mt-1">Group</span>
-            </div>
-
-            {/* Box 4 */}
-            <div className="bg-amber-50 border-2 border-amber-300 rounded-xl sm:rounded-2xl p-2 sm:p-3.5">
-              <span className="block text-xl sm:text-3xl md:text-4xl font-extrabold text-amber-700">{digits678}</span>
-              <span className="block text-[10px] sm:text-xs font-bold text-amber-600 uppercase tracking-wide mt-1">Roll</span>
-            </div>
-          </div>
-
-          {/* Detailed explanation cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-4 sm:mt-6">
-            <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-blue-50/70 border border-blue-100 flex items-start gap-3">
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-blue-600 text-white font-mono font-bold text-xs sm:text-sm flex items-center justify-center shrink-0">
-                1st
-              </div>
-              <div className="min-w-0">
-                <h4 className="font-bold text-slate-900 text-xs sm:text-sm">Subject: {discipline?.name}</h4>
-                <p className="text-[11px] sm:text-xs text-slate-600 mt-0.5">
+            <dl className="facts">
+              <div>
+                <dt>1st digit, subject</dt>
+                <dd>
+                  <strong>{discipline?.name}</strong>
+                  <br />
                   1 to 3 = Science, 4 to 5 = Humanities, 6 and above = Business Studies.
-                </p>
+                </dd>
               </div>
-            </div>
-
-            <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-purple-50/70 border border-purple-100 flex items-start gap-3">
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-purple-600 text-white font-mono font-bold text-xs sm:text-sm flex items-center justify-center shrink-0">
-                2-3
-              </div>
-              <div className="min-w-0">
-                <h4 className="font-bold text-slate-900 text-xs sm:text-sm">Passing Year: HSC {hscYear}</h4>
-                <p className="text-[11px] sm:text-xs text-slate-600 mt-0.5">
+              <div>
+                <dt>Digits 2 and 3, passing year</dt>
+                <dd>
+                  <strong>HSC {hscYear}</strong>
+                  <br />
                   The year students appear for the HSC board exam ({digits23} = {hscYear}).
-                </p>
+                </dd>
               </div>
-            </div>
-
-            <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-emerald-50/70 border border-emerald-100 flex items-start gap-3">
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-emerald-600 text-white font-mono font-bold text-xs sm:text-sm flex items-center justify-center shrink-0">
-                4-5
-              </div>
-              <div className="min-w-0">
-                <h4 className="font-bold text-slate-900 text-xs sm:text-sm">Group / Section: {groupName}</h4>
-                <p className="text-[11px] sm:text-xs text-slate-600 mt-0.5">
+              <div>
+                <dt>Digits 4 and 5, group</dt>
+                <dd>
+                  <strong>{groupName}</strong>
+                  <br />
                   In Business Studies, 01 is Group A, 02 is Group B, and so on.
-                </p>
+                </dd>
               </div>
-            </div>
-
-            <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-amber-50/70 border border-amber-100 flex items-start gap-3">
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-amber-600 text-white font-mono font-bold text-xs sm:text-sm flex items-center justify-center shrink-0">
-                6-8
-              </div>
-              <div className="min-w-0">
-                <h4 className="font-bold text-slate-900 text-xs sm:text-sm">Serial Roll: #{serialRoll}</h4>
-                <p className="text-[11px] sm:text-xs text-slate-600 mt-0.5">
+              <div>
+                <dt>Digits 6 to 8, serial roll</dt>
+                <dd>
+                  <strong className="num">#{serialRoll}</strong>
+                  <br />
                   The sequential classroom roll assigned within the section.
-                </p>
+                </dd>
               </div>
-            </div>
+            </dl>
           </div>
-        </div>
-      ) : (
-        <div className="p-4 sm:p-6 bg-rose-50 border border-rose-200 rounded-xl sm:rounded-2xl text-center text-rose-700 text-xs sm:text-sm font-medium">
-          Please enter an 8-digit Notre Dame College ID (e.g. 62101030).
-        </div>
-      )}
-
-      {/* Note on Merit */}
-      <div className="mt-5 sm:mt-6 p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-slate-900 text-white flex items-start gap-3 shadow-sm">
-        <span className="text-lg sm:text-xl shrink-0 mt-0.5">ℹ️</span>
-        <div className="text-xs sm:text-sm leading-relaxed">
-          <strong className="text-gold font-bold">Note on Serial Roll:</strong> At Notre Dame College, the last 3 digits (such as <code>030</code>) are an administrative roll number within that group used for attendance records. <strong>This number does not indicate admission test score or academic rank.</strong> All students in the section are admitted on equal footing.
-        </div>
+        ) : (
+          <p className="decoder__error" role="alert">
+            Please enter an 8-digit Notre Dame College ID (e.g. 62101030).
+          </p>
+        )}
       </div>
+
+      <p className="decoder__note">
+        <strong>Note on serial roll.</strong> At Notre Dame College, the last 3 digits (such as <code className="num">030</code>)
+        are an administrative roll number within that group, used for attendance records.{" "}
+        <strong>This number does not indicate admission test score or academic rank.</strong> All students in the section
+        are admitted on equal footing.
+      </p>
     </div>
   );
 }

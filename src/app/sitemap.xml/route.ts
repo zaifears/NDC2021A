@@ -1,27 +1,17 @@
 import { NextResponse } from "next/server";
 import { getProfiles } from "@/lib/sheets";
 import { createSlug } from "@/lib/slug";
+import { isProfileFilled, toIsoDate } from "@/lib/profile";
 
 export const revalidate = 3600;
 
-// Helper to safely parse Google Sheets dates for the sitemap XML (W3C standard YYYY-MM-DD)
-function getSafeLastMod(raw: string) {
-  if (!raw) return new Date().toISOString().split("T")[0];
-  
-  // Try to extract DD/MM/YYYY
-  const m = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-  if (m) {
-    const [, dd, mm, yyyy] = m;
-    return `${yyyy}-${mm.padStart(2, "0")}-${dd.padStart(2, "0")}`; // Valid W3C sitemap format
-  }
-  
-  // Standard JS parse fallback
-  const parsed = Date.parse(raw);
-  if (!isNaN(parsed)) {
-    return new Date(parsed).toISOString().split("T")[0];
-  }
-  
-  return new Date().toISOString().split("T")[0];
+function escapeXml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
 }
 
 export async function GET() {
@@ -29,47 +19,44 @@ export async function GET() {
     const origin = process.env.NEXT_PUBLIC_BASE_URL || "https://ndc2021a.vercel.app";
     const profiles = await getProfiles();
 
+    // Only profiles that are indexable belong in the sitemap. Unfilled profiles carry
+    // `noindex`, and listing a noindex URL in a sitemap sends Google a contradiction.
+    const indexable = profiles.filter(isProfileFilled);
+
+    // Real freshness: the newest profile update, never "now".
+    const dates = indexable.map((p) => toIsoDate(p.lastUpdated)).filter(Boolean).sort();
+    const newest = dates.length ? dates[dates.length - 1] : "";
+
     const homepage = `
   <url>
-    <loc>${origin}/</loc>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-    <lastmod>${new Date().toISOString()}</lastmod>
+    <loc>${escapeXml(origin)}/</loc>${newest ? `\n    <lastmod>${newest}</lastmod>` : ""}
   </url>`;
 
     const aboutNdcPage = `
   <url>
-    <loc>${origin}/about-ndc</loc>
-    <lastmod>${new Date().toISOString().split("T")[0]}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
+    <loc>${escapeXml(origin)}/about-ndc</loc>
   </url>`;
 
-    const profileUrls = profiles
+    const profileUrls = indexable
       .map((profile) => {
-        const lastmod = getSafeLastMod(profile.lastUpdated);
-
+        const lastmod = toIsoDate(profile.lastUpdated);
         const slug = createSlug(profile.name);
-
         return `
   <url>
-    <loc>${origin}/students/${encodeURIComponent(profile.id)}/${encodeURIComponent(slug)}</loc>
-    <lastmod>${lastmod}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <loc>${escapeXml(`${origin}/students/${encodeURIComponent(profile.id)}/${encodeURIComponent(slug)}`)}</loc>${
+          lastmod ? `\n    <lastmod>${lastmod}</lastmod>` : ""
+        }
   </url>`;
       })
       .join("");
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset
-xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${homepage}
 ${aboutNdcPage}
 ${profileUrls}
-
-</urlset>`;
+</urlset>
+`;
 
     return new NextResponse(xml, {
       headers: {

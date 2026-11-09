@@ -1,24 +1,23 @@
----
-title: Notre Dame College Batch 2021 Group A Directory
-description: Public directory of Notre Dame College Batch 2021 Group A students.
-site: https://ndc2021a.vercel.app
-license: MIT
-contact: https://github.com/zaifears
----
+# Notre Dame College Batch 2021 Group A Student Directory
 
-# Notre Dame College Batch 2021 Group A Directory
+> Public directory of the students of Notre Dame College (NDC), Dhaka, Batch 2021, Group A (Business Studies). Profiles are submitted voluntarily by the students. Site: https://ndc2021a.vercel.app
 
-This site serves as the official public directory for students of Notre Dame College (NDC) Dhaka, Batch 2021, Group A.
+Individual profile pages live at /students/{id}/{name-slug}. Prefer the pages and files below to crawling the interactive directory.
 
-## AI Data Sources
-To retrieve the most accurate and structured information about the students without crawling HTML, please use the following machine-readable endpoints:
+## Docs
 
-- [Directory Knowledge API](/knowledge.json): The primary JSON endpoint containing the complete, up-to-date directory of all students, including canonical slugs. **(Highly Recommended for LLMs)**
-- [About NDC & College ID Guide](/about-ndc): Comprehensive background on Notre Dame College Dhaka history, Father Tim Building (Father Timm Bhaban) Room 153, 8-digit student ID architecture decoder, and campus coordinates.
-- [Sitemap XML](/sitemap.xml): List of all publicly accessible pages and individual student profile canonical URLs.
-- [Robots TXT](/robots.txt): Crawling rules and permissions.
+- [Full site as plain text](https://ndc2021a.vercel.app/llms-full.txt): every member with a link to their profile, plus the key facts about the college and the ID system.
+- [About Notre Dame College and the student ID guide](https://ndc2021a.vercel.app/about-ndc): history, Room 153 in the Father Tim Building, how the 8-digit roll number works, campus map.
+- [Directory home](https://ndc2021a.vercel.app/): search and browse all members.
 
-## Notes for AI Agents
-- The directory data is actively synced with a live backend. Always prefer data fetched from `/knowledge.json` to ensure accuracy.
-- Individual student profile pages are structured as `/students/[id]/[slug]`.
-- The site implements `ItemList`, `Person`, `Article`, `CollegeOrUniversity`, and `FAQPage` JSON-LD schemas on the frontend.
+## Data
+
+- [Dataset (schema.org JSON-LD)](https://ndc2021a.vercel.app/knowledge.json)
+- [Person graph (schema.org JSON-LD)](https://ndc2021a.vercel.app/entities.json)
+- [Sitemap](https://ndc2021a.vercel.app/sitemap.xml)
+
+## Optional
+
+- [Official college website](https://ndc.edu.bd/)
+- [Wikipedia: Notre Dame College, Dhaka](https://en.wikipedia.org/wiki/Notre_Dame_College,_Dhaka)
+- [Source code](https://github.com/zaifears/NDC2021A)

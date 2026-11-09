@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getProfiles } from "@/lib/sheets";
 import { createSlug } from "@/lib/slug";
+import { isProfileFilled } from "@/lib/profile";
 
 const INDEXNOW_KEY = "b87e4fcc78a84826a48769b40cdaebf3";
 const INDEXNOW_ENDPOINT = "https://api.indexnow.org/indexnow";
@@ -49,14 +50,15 @@ export async function POST(request: Request) {
     let urlsToSubmit: string[] = [];
 
     if (Array.isArray(body.urls) && body.urls.length > 0) {
-      urlsToSubmit = body.urls;
+      // Only URLs on this site may be submitted
+      urlsToSubmit = body.urls.filter((u: unknown) => typeof u === "string" && u.startsWith(origin + "/"));
     } else {
       // Gather all directory URLs: homepage, about page + all student profiles
       const profiles = await getProfiles();
       urlsToSubmit = [
         `${origin}/`,
         `${origin}/about-ndc`,
-        ...profiles.map(
+        ...profiles.filter(isProfileFilled).map(
           (p) => `${origin}/students/${encodeURIComponent(p.id)}/${encodeURIComponent(createSlug(p.name))}`
         ),
       ];

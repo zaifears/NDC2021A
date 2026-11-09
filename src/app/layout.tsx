@@ -1,14 +1,37 @@
-// @ts-ignore: Bypass IDE module resolution glitch for Next.js Metadata
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import { Hanken_Grotesk, IBM_Plex_Mono, Newsreader } from "next/font/google";
 import StructuredData from "@/components/StructuredData";
-// @ts-ignore: allow global CSS import without explicit type declarations
 import "./globals.css";
 
+const display = Hanken_Grotesk({
+  subsets: ["latin"],
+  weight: ["600"],
+  display: "swap",
+  variable: "--nf-display",
+});
+
+const body = Newsreader({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  display: "swap",
+  variable: "--nf-body",
+});
+
+const mono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400"],
+  display: "swap",
+  variable: "--nf-mono",
+});
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#0f172a",
+};
+
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_BASE_URL ??
-      "https://ndc2021a.vercel.app"
-  ),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL ?? "https://ndc2021a.vercel.app"),
 
   title: {
     default: "Notre Dame College Batch 2021 Group A Student Directory",
@@ -16,36 +39,23 @@ export const metadata: Metadata = {
   },
 
   description:
-    "Official public student directory for Notre Dame College (NDC) Dhaka Batch 2021 Group A. Browse verified student profiles, contact information, and social links submitted by students.",
+    "Public student directory of Notre Dame College (NDC) Dhaka, Batch 2021 Group A. Find classmates, profiles, photos and contact links shared by the students.",
 
   applicationName: "NDC 2021 Group A Directory",
   referrer: "origin-when-cross-origin",
 
   authors: [
-    {
-      name: "NDC 2021 Group A Community",
-    },
-    {
-      name: "Md. Al Shahoriar Hossain",
-      url: "https://shahoriar.bd",
-    },
+    { name: "NDC 2021 Group A Community" },
+    { name: "Md. Al Shahoriar Hossain", url: "https://shahoriar.bd" },
   ],
-
   creator: "Md. Al Shahoriar Hossain",
-
   publisher: "NDC 2021 Group A Community",
-
   category: "Education",
-  appleWebApp: {
-  capable: true,
-  title: "NDC 2021 Group A",
-  statusBarStyle: "default",
-},
 
-  other: {
-    "subject": "Notre Dame College Batch 2021 Group A Student Directory",
-    "coverage": "Bangladesh",
-    "distribution": "global",
+  appleWebApp: {
+    capable: true,
+    title: "NDC 2021 Group A",
+    statusBarStyle: "default",
   },
 
   keywords: [
@@ -56,23 +66,17 @@ export const metadata: Metadata = {
     "Batch 2021",
     "Group A",
     "Student Directory",
-    "Student Profiles",
-    "Alumni",
-    "Bangladesh",
     "Notre Dame College Alumni",
-    "NDC Directory",
-    "Notre Dame College Students",
   ],
 
   alternates: {
     canonical: "/",
+    types: { "application/json": "/knowledge.json", "text/plain": "/llms-full.txt" },
   },
 
   robots: {
     index: true,
     follow: true,
-    nocache: false,
-
     googleBot: {
       index: true,
       follow: true,
@@ -82,68 +86,43 @@ export const metadata: Metadata = {
     },
   },
 
+  // Icons: the file-based opengraph-image and twitter-image routes supply the social previews.
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      { url: "/favicon.ico", sizes: "48x48" },
+      { url: "/logo-512.png", sizes: "512x512", type: "image/png" },
+    ],
     shortcut: "/favicon.ico",
-    apple: "/favicon.ico",
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },
 
-  verification: {
-    google: "6d4fe17fcdeadb6e",
-  },
+  verification: { google: "6d4fe17fcdeadb6e" },
 
   openGraph: {
     type: "website",
     locale: "en_US",
-
     url: "/",
-
     siteName: "NDC 2021 Group A",
-
     title: "Notre Dame College Batch 2021 Group A Student Directory",
-
-    description:
-      "Browse public student profiles from Notre Dame College Dhaka Batch 2021 Group A.",
-
-    images: [
-      {
-        url: "/badge.png",
-        width: 1200,
-        height: 630,
-        alt: "Notre Dame College Batch 2021 Group A Directory",
-      },
-    ],
+    description: "Browse public student profiles from Notre Dame College Dhaka Batch 2021 Group A.",
   },
 
   twitter: {
     card: "summary_large_image",
-
     title: "Notre Dame College Batch 2021 Group A Student Directory",
-
-    description:
-      "Browse verified student profiles from NDC Batch 2021 Group A.",
-
-    images: ["/badge.png"],
+    description: "Browse public student profiles from NDC Batch 2021 Group A.",
   },
 
-  formatDetection: {
-    telephone: false,
-    email: false,
-    address: false,
-  },
+  formatDetection: { telephone: false, email: false, address: false },
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="scroll-smooth">
-      <body className="bg-slate-50 text-slate-900 antialiased selection:bg-gold/30">
-  <StructuredData />
-  {children}
-</body>
+    <html lang="en" className={`${display.variable} ${body.variable} ${mono.variable}`}>
+      <body>
+        <StructuredData />
+        {children}
+      </body>
     </html>
   );
 }

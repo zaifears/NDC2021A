@@ -1,20 +1,24 @@
+# Search engines (Google, Bing and the rest)
+# /api/image stays crawlable because profile photos are served through it
 User-agent: *
 Allow: /
+Disallow: /api/indexnow
+Disallow: /api/student-slug
 
-# Dedicated directives for AI & LLM Search Agents
+# AI search and assistant crawlers: allowed, so the directory can be cited and answered from
 User-agent: GPTBot
-Allow: /
-
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
 User-agent: ClaudeBot
-Allow: /
-
+User-agent: Claude-SearchBot
+User-agent: Claude-User
 User-agent: PerplexityBot
-Allow: /
-
+User-agent: Perplexity-User
+User-agent: Google-Extended
+User-agent: Applebot-Extended
 User-agent: CCBot
 Allow: /
-
-User-agent: Google-Extended
-Allow: /
+Disallow: /api/indexnow
+Disallow: /api/student-slug
 
 Sitemap: https://ndc2021a.vercel.app/sitemap.xml

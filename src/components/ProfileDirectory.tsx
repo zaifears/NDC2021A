@@ -6,6 +6,16 @@ import Link from "next/link";
 
 type FilterType = "all" | "recent" | "linkedin" | "bio" | "picture";
 
+const FILTERS: { key: FilterType; label: string }[] = [
+  { key: "all", label: "All" },
+  { key: "recent", label: "Recently updated" },
+  { key: "linkedin", label: "Has LinkedIn" },
+  { key: "bio", label: "Has bio" },
+  { key: "picture", label: "Has picture" },
+];
+
+const RECENT_KEY = "Recently Updated";
+
 export default function ProfileDirectory({ profiles }: { profiles: Profile[] }) {
   const [query, setQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterType>("all");
@@ -22,6 +32,15 @@ export default function ProfileDirectory({ profiles }: { profiles: Profile[] }) 
   const activePointerId = useRef<number | null>(null);
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const staleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // The hero search and a ?search= link both feed the same query
+  useEffect(() => {
+    const initial = new URLSearchParams(window.location.search).get("search");
+    if (initial) setQuery(initial);
+    const onSearch = (e: Event) => setQuery(String((e as CustomEvent).detail ?? ""));
+    window.addEventListener("ndc:search", onSearch);
+    return () => window.removeEventListener("ndc:search", onSearch);
+  }, []);
 
   // 1. Filter and Sort Logic
   const filtered = useMemo(() => {
@@ -46,10 +65,10 @@ export default function ProfileDirectory({ profiles }: { profiles: Profile[] }) 
     return result;
   }, [query, profiles, activeFilter]);
 
-  // 2. Grouping Logic (iOS Contacts Style)
+  // 2. Grouping Logic (contacts-book style)
   const groupedProfiles = useMemo(() => {
     if (activeFilter === "recent") {
-      return { "Recently Updated": filtered };
+      return { [RECENT_KEY]: filtered };
     }
     const groups: Record<string, Profile[]> = {};
     filtered.forEach((p) => {
@@ -68,17 +87,6 @@ export default function ProfileDirectory({ profiles }: { profiles: Profile[] }) 
 
   const letters = useMemo(() => Object.keys(groupedProfiles), [groupedProfiles]);
 
-  // Gradient Helper
-  function gradientForKey(key: string) {
-    let hash = 0;
-    for (let i = 0; i < key.length; i++) {
-      hash = (hash * 31 + key.charCodeAt(i)) % 360;
-    }
-    const h1 = hash;
-    const h2 = (hash + 60) % 360;
-    return `linear-gradient(135deg, hsl(${h1},70%,85%), hsl(${h2},70%,60%))`;
-  }
-
   const scrollToLetter = useCallback((letter: string) => {
     const element = document.getElementById(`group-${letter}`);
     if (element) {
@@ -92,7 +100,8 @@ export default function ProfileDirectory({ profiles }: { profiles: Profile[] }) 
     const handleScroll = () => {
       if (!listStartRef.current) return;
       const top = listStartRef.current.getBoundingClientRect().top;
-      setShowScrubber(top < 80);
+      const bottom = listStartRef.current.parentElement?.getBoundingClientRect().bottom ?? 0;
+      setShowScrubber(top < 80 && bottom > 240);
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
     handleScroll();
@@ -156,7 +165,7 @@ export default function ProfileDirectory({ profiles }: { profiles: Profile[] }) 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
       e.preventDefault();
-      e.currentTarget.setPointerCapture(e.pointerId); // <-- guarantees pointerup always reaches us
+      e.currentTarget.setPointerCapture(e.pointerId); // guarantees pointerup always reaches us
       activePointerId.current = e.pointerId;
       if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
       setIsDragging(true);
@@ -222,116 +231,74 @@ export default function ProfileDirectory({ profiles }: { profiles: Profile[] }) 
     };
   };
 
+  const entries = Object.entries(groupedProfiles);
+
   return (
-    <section className="max-w-7xl mx-auto px-4 pb-24 w-full flex-grow relative">
-      {/* credits */}
-      <div className="text-center mb-6 py-4 text-sm text-slate-600">
-        <p>
-          Built with <span className="font-semibold text-slate-900">Next.js, TypeScript, and Tailwind CSS</span>.
-        </p>
-        <p>
-          Open source project by
-          <a
-            href="https://shahoriar.bd"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-bold text-gold hover:underline ml-1"
-          >
-            Md Al Shahoriar Hossain (62101030)
-          </a>
-          .
-        </p>
+    <>
+      <div className="section__head">
+        <h2 id="directory-title">Every member of Group A</h2>
+        <p className="lead">Open a name to see the photo, bio and links they chose to share.</p>
       </div>
 
-      {/* search input */}
-      <div className="text-center mb-4">
-        <input
-          type="search"
-          placeholder="Search by name or ID..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="w-full max-w-lg px-6 py-3 rounded-full bg-white/50 backdrop-blur-md border border-white/20 shadow-lg focus:outline-none focus:ring-2 focus:ring-gold transition-all"
-        />
+      <div className="register__tools">
+        <div className="register__search">
+          <label htmlFor="directory-search">Search the register</label>
+          <input
+            id="directory-search"
+            className="field"
+            type="search"
+            autoComplete="off"
+            placeholder="Name or ID"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          <p className="register__count" role="status" aria-live="polite">
+            Showing {filtered.length} {filtered.length === 1 ? "member" : "members"}
+          </p>
+        </div>
+
+        <div className="seg" role="group" aria-label="Filter members">
+          {FILTERS.map((f) => (
+            <button
+              key={f.key}
+              type="button"
+              aria-pressed={activeFilter === f.key}
+              onClick={() => setActiveFilter(f.key)}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Advanced Filter Pills */}
-      <div className="flex flex-wrap justify-center gap-2 mb-6 max-w-lg mx-auto">
-        <button
-          onClick={() => setActiveFilter("all")}
-          className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
-            activeFilter === "all" ? "bg-slate-800 text-white shadow-md" : "bg-white text-slate-500 hover:bg-slate-100 border border-slate-200"
-          }`}
-        >
-          All
-        </button>
-        <button
-          onClick={() => setActiveFilter("recent")}
-          className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
-            activeFilter === "recent" ? "bg-blue-600 text-white shadow-md" : "bg-white text-slate-500 hover:bg-slate-100 border border-slate-200"
-          }`}
-        >
-          ⏱️ Recently Updated
-        </button>
-        <button
-          onClick={() => setActiveFilter("linkedin")}
-          className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
-            activeFilter === "linkedin" ? "bg-[#0A66C2] text-white shadow-md" : "bg-white text-slate-500 hover:bg-slate-100 border border-slate-200"
-          }`}
-        >
-          💼 Has LinkedIn
-        </button>
-        <button
-          onClick={() => setActiveFilter("bio")}
-          className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
-            activeFilter === "bio" ? "bg-emerald-600 text-white shadow-md" : "bg-white text-slate-500 hover:bg-slate-100 border border-slate-200"
-          }`}
-        >
-          📝 Has Bio
-        </button>
-        <button
-          onClick={() => setActiveFilter("picture")}
-          className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
-            activeFilter === "picture" ? "bg-purple-600 text-white shadow-md" : "bg-white text-slate-500 hover:bg-slate-100 border border-slate-200"
-          }`}
-        >
-          📸 Has Picture
-        </button>
-      </div>
+      {/* Directory content */}
+      <div className="register__body">
+        <div ref={listStartRef} className="visually-hidden" aria-hidden="true" />
 
-      {/* result count */}
-      <div className="text-center text-sm text-slate-600 mb-8 font-medium">
-        Showing {filtered.length} {filtered.length === 1 ? "member" : "members"}
-      </div>
-
-      {/* Directory Content Area */}
-      <div className="max-w-4xl mx-auto relative pr-6 sm:pr-10">
-        <div ref={listStartRef} className="absolute top-0 h-px w-full" />
-
-        {/* Alphabet Scrubber: fixed to viewport, fades in once you scroll to the names */}
+        {/* Alphabet scrubber: fixed to the viewport, fades in once you scroll to the names */}
         {activeFilter !== "recent" && letters.length > 1 && (
-          <div
-            className={`fixed right-1 sm:right-3 top-1/2 -translate-y-1/2 z-30 flex flex-col items-center
-              transition-all duration-300 ease-out
-              ${showScrubber ? "opacity-100 translate-x-0 pointer-events-auto" : "opacity-0 translate-x-4 pointer-events-none"}`}
-          >
+          <div className="scrubber" data-visible={showScrubber}>
             <div
               ref={scrubberRef}
+              role="group"
+              aria-label="Jump to a letter"
               onPointerDown={handlePointerDown}
               onPointerMove={handlePointerMove}
               onPointerUp={handlePointerUp}
               onPointerCancel={handlePointerUp}
-              className="flex flex-col items-center gap-0.5 bg-white/70 backdrop-blur-xl px-1.5 py-2.5 rounded-full border border-white/60 shadow-lg shadow-slate-300/40 touch-none select-none"
+              className="scrubber__strip"
             >
               {letters.map((letter, i) => (
                 <button
                   key={letter}
+                  type="button"
                   data-letter={letter}
+                  aria-label={`Jump to ${letter}`}
+                  aria-current={dragLetter === letter ? "true" : undefined}
+                  tabIndex={showScrubber ? 0 : -1}
                   onClick={() => flashLetter(letter)}
                   style={getMagnifyStyle(i)}
-                  className={`relative w-5 h-5 flex items-center justify-center rounded-full text-[10px] font-bold
-                    transition-transform duration-150 ease-out
-                    before:absolute before:-inset-2 before:content-['']
-                    ${dragLetter === letter ? "text-gold" : "text-slate-400 hover:text-slate-800"}`}
+                  className="scrubber__letter"
                 >
                   {letter}
                 </button>
@@ -340,92 +307,44 @@ export default function ProfileDirectory({ profiles }: { profiles: Profile[] }) 
           </div>
         )}
 
-        {/* Big center letter bubble: frosted glass, gold gradient ring, guaranteed to vanish */}
+        {/* The centre letter plate, guaranteed to vanish */}
         {dragLetter && (
-          <div
-            className={`fixed inset-0 z-40 flex items-center justify-center pointer-events-none
-              transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]
-              ${isDragging ? "opacity-100 scale-100" : "opacity-0 scale-75"}`}
-          >
-            <div className="relative w-28 h-28 rounded-[2rem] flex items-center justify-center shadow-2xl shadow-black/30">
-              <div className="absolute inset-0 rounded-[2rem] bg-slate-900/75 backdrop-blur-xl" />
-              <div
-                className="absolute inset-0 rounded-[2rem] opacity-70"
-                style={{
-                  background: "conic-gradient(from 180deg, #d4af37, #f5e7a3, #d4af37)",
-                  padding: "1.5px",
-                  WebkitMask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
-                  WebkitMaskComposite: "xor",
-                  maskComposite: "exclude",
-                }}
-              />
-              <span className="relative text-white text-5xl font-bold tracking-tight">{dragLetter}</span>
-            </div>
+          <div className="bubble" data-visible={isDragging} aria-hidden="true">
+            <div className="bubble__plate">{dragLetter}</div>
           </div>
         )}
 
-        {/* List by Groups */}
-        {Object.entries(groupedProfiles).length === 0 ? (
-          <div className="text-center py-20 bg-white rounded-3xl border border-slate-100 shadow-sm">
-            <span className="text-4xl mb-4 block">🔍</span>
-            <h3 className="text-lg font-bold text-slate-800">No members found</h3>
-            <p className="text-slate-500 mt-2">Try adjusting your search or filters.</p>
+        {/* List by groups */}
+        {entries.length === 0 ? (
+          <div className="register__empty">
+            <h3>No members found</h3>
+            <p>Try another spelling, a shorter name or a different filter.</p>
           </div>
         ) : (
-          <div className="space-y-8">
-            {Object.entries(groupedProfiles).map(([letter, groupProfiles]) => (
-              <div key={letter} id={`group-${letter}`} className="relative scroll-mt-24">
-                <div className="sticky top-0 z-10 bg-slate-50/95 backdrop-blur-md py-2 mb-3 shadow-[0_4px_10px_-10px_rgba(0,0,0,0.1)]">
-                  <h3 className="text-xl font-extrabold text-slate-900 flex items-center gap-3">
-                    <span className="bg-slate-200 text-slate-700 w-8 h-8 rounded-lg flex items-center justify-center text-sm shadow-inner">
-                      {letter.substring(0, 2)}
-                    </span>
-                    {letter === "Recently Updated" && <span className="text-sm font-medium text-slate-500">Chronological</span>}
-                  </h3>
-                </div>
-                <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {groupProfiles.map((p) => (
-                    <li
-                      key={p.id}
-                      className="bg-white border border-slate-100 rounded-2xl shadow-sm transition-all duration-300 hover:shadow-md hover:border-gold/30 hover:-translate-y-0.5 group overflow-hidden relative animate-fade-in-up"
-                    >
-                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-gold to-darkGold opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      <Link
-                        href={`/students/${p.id}/${createSlug(p.name)}`}
-                        prefetch={false}
-                        className="flex items-center px-4 py-3 min-h-[4.5rem]"
-                      >
-                        <div
-                          className="w-12 h-12 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-600 font-bold text-sm mr-4 shrink-0 group-hover:bg-gold/10 group-hover:text-darkGold group-hover:border-gold/20 transition-colors"
-                          style={{ background: gradientForKey(p.id) }}
-                        >
-                          {p.name.split(" ").map((n) => n[0]).join("").substring(0, 2).toUpperCase()}
-                        </div>
-                        <div className="flex-1 min-w-0 pr-4">
-                          <span className="block font-semibold text-slate-800 text-[15px] truncate group-hover:text-slate-900 transition-colors">
-                            {p.name}
-                          </span>
-                          <span className="block text-[11px] text-slate-400 font-mono mt-0.5 tracking-wider">
-                            ID: {p.id}
-                          </span>
-                          {activeFilter === "recent" && p.lastUpdated && (
-                            <span className="block text-[10px] text-blue-500 mt-1 font-medium">
-                              Updated: {p.lastUpdated.split(" ")[0]}
-                            </span>
-                          )}
-                        </div>
-                        <div className="w-7 h-7 shrink-0 rounded-full bg-slate-50 flex items-center justify-center opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
-                          <span className="text-gold font-bold text-sm">→</span>
-                        </div>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
+          entries.map(([letter, groupProfiles]) => (
+            <div key={letter} id={`group-${letter}`} className="register__group">
+              <h3 className={letter === RECENT_KEY ? "register__letter register__letter--wide" : "register__letter"}>
+                {letter === RECENT_KEY ? "Most recent first" : letter.substring(0, 2)}
+              </h3>
+              <ul className="register__list">
+                {groupProfiles.map((p) => (
+                  <li key={p.id}>
+                    <Link href={`/students/${p.id}/${createSlug(p.name)}`} prefetch={false} className="register__row">
+                      <span className="register__name">{p.name}</span>
+                      <span className="register__meta">
+                        <span className="register__id num">{p.id}</span>
+                        {activeFilter === "recent" && p.lastUpdated && (
+                          <span className="register__updated">Updated {p.lastUpdated.split(" ")[0]}</span>
+                        )}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
         )}
       </div>
-    </section>
+    </>
   );
 }

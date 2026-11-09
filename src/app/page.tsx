@@ -1,244 +1,159 @@
-import ProfileDirectory from "@/components/ProfileDirectory";
-import Image from "next/image";
 import Link from "next/link";
+import HeroSearch from "@/components/HeroSearch";
+import HeroSlides from "@/components/HeroSlides";
+import ProfileDirectory from "@/components/ProfileDirectory";
+import SiteFooter from "@/components/SiteFooter";
+import SiteHeader from "@/components/SiteHeader";
 import { getProfiles } from "@/lib/sheets";
-import ScrollWrapper from "@/components/ScrollWrapper";
+import { createSlug } from "@/lib/slug";
+import { isProfileFilled } from "@/lib/profile";
+import { SITE_URL } from "@/lib/site";
 
 export const revalidate = 60;
+
+// The batch photograph is the primary slide; the building follows after 5 seconds.
+const heroSlides = [
+  {
+    src: "/images/batch-21-hero.webp",
+    alt: "Students of the batch standing in the shape of an A on the college lawn, with NDC-21 spelled out in bags below them, seen from above",
+    caption: "The batch on the college lawn, with NDC-21 spelled in bags.",
+    width: 1080,
+    height: 1444,
+    position: "50% 52%",
+  },
+  {
+    src: "/images/campus/father-timm-bhaban.jpg",
+    alt: "The brick and white Father Timm Bhaban at Notre Dame College, Dhaka, seen across the lawn",
+    caption: "Father Timm Bhaban, where Group A met in Room 153.",
+    width: 1440,
+    height: 1080,
+    position: "50% 60%",
+  },
+];
+
+const faq = [
+  {
+    q: "Who can appear in this directory?",
+    a: "Students of Notre Dame College Batch 2021 Group A.",
+  },
+  {
+    q: "Where does the information come from?",
+    a: "Profile information is submitted voluntarily by students using the official update form.",
+  },
+  {
+    q: "How can I update my profile?",
+    a: "You can submit updated information using the official profile update form.",
+  },
+];
 
 const faqSchema = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
-  "mainEntity": [
-    {
-      "@type": "Question",
-      "name": "Who can appear in this directory?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Students of Notre Dame College Batch 2021 Group A."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Where does the information come from?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Profile information is submitted voluntarily by students using the official update form."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "How can I update my profile?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "You can submit updated information using the official profile update form."
-      }
-    }
-  ]
+  mainEntity: faq.map((item) => ({
+    "@type": "Question",
+    name: item.q,
+    acceptedAnswer: { "@type": "Answer", text: item.a },
+  })),
 };
 
 export default async function Home() {
   const profiles = await getProfiles();
+
+  // Only profiles that are indexable are listed as items
+  const listed = profiles.filter(isProfileFilled);
+  const listSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "Notre Dame College Batch 2021 Group A student profiles",
+    numberOfItems: listed.length,
+    itemListElement: listed.map((p, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      url: `${SITE_URL}/students/${p.id}/${createSlug(p.name)}`,
+      name: p.name,
+    })),
+  };
+
   return (
-    <main className="min-h-screen bg-slate-50 relative overflow-hidden flex flex-col">
-      <script 
-        type="application/ld+json" 
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} 
-      />
-      {/* Subtle Background Gradient */}
-      <div className="absolute top-0 inset-x-0 h-[500px] bg-gradient-to-b from-blue-900/5 to-transparent -z-10 pointer-events-none" />
+    <>
+      <SiteHeader current="home" />
+      <main id="main">
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify([faqSchema, listSchema]) }} />
 
-      {/* Hero Section */}
-      <section className="max-w-7xl mx-auto px-4 pt-20 pb-12 text-center">
-        <span className="inline-block py-1 px-4 rounded-full bg-gold/10 text-darkGold text-xs font-bold tracking-widest mb-6 border border-gold/20 uppercase">
-          Batch Directory
-        </span>
-        <div className="mx-auto mb-6 w-24 h-24">
-          <Image src="/ndc.svg" alt="NDC Logo" width={96} height={96} className="mx-auto" />
-        </div>
-        <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tight mb-6">
-          NDC 2021<br className="md:hidden" /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold to-darkGold">Group A</span>
-        </h1>
-        <p className="text-lg md:text-xl text-slate-500 max-w-3xl mx-auto mb-10 leading-relaxed font-medium">
-          Welcome to the official directory for Notre Dame College Batch 2021 Group A. This site is a community-driven project to help you connect with your classmates, discover their backgrounds, and stay in touch.
-        </p>
-        <div className="flex flex-wrap justify-center items-center gap-3 text-sm text-slate-600 font-medium">
-          <div className="flex items-center gap-2 bg-white px-5 py-2.5 rounded-full shadow-sm border border-slate-200">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" /> {profiles.length} Members
+        {/* Hero: the name of the batch, one line, and the search */}
+        <section className="hero" aria-labelledby="hero-title">
+          <div className="container hero__grid">
+            <div className="hero__text">
+              <h1 id="hero-title">Notre Dame College, Batch 2021 Group A</h1>
+              <p className="lead">
+                {profiles.length} classmates, with the photos, contacts and links they chose to share.
+              </p>
+              <HeroSearch />
+            </div>
+            <HeroSlides slides={heroSlides} />
           </div>
-          <Link
-            href="/about-ndc"
-            className="flex items-center gap-2 bg-white hover:bg-slate-50 px-5 py-2.5 rounded-full shadow-sm border border-slate-200 font-semibold text-slate-800 hover:text-gold transition group"
-          >
-            <span>🏛️</span>
-            <span>About NDC & ID Guide</span>
-            <span className="text-slate-400 group-hover:translate-x-0.5 transition-transform">→</span>
-          </Link>
-        </div>
-      </section>
+        </section>
 
-      {/* Features Grid (Replaces old bullet points) */}
-      <section className="max-w-5xl mx-auto px-4 pb-10 w-full z-10">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white/80 backdrop-blur-sm border border-slate-200 p-6 rounded-2xl text-center shadow-sm hover:shadow-md transition-shadow">
-            <div className="w-12 h-12 mx-auto bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mb-4 text-xl border border-blue-100">👥</div>
-            <h3 className="font-bold text-slate-900 mb-2">Browse All Members</h3>
-            <p className="text-sm text-slate-600">Explore all 132 members of the batch, even if they haven&#39;t filled out their profile yet.</p>
+        {/* The register */}
+        <section id="directory" className="section band" aria-labelledby="directory-title">
+          <div className="container">
+            <ProfileDirectory profiles={profiles} />
           </div>
-          
-          <div className="bg-white/80 backdrop-blur-sm border border-slate-200 p-6 rounded-2xl text-center shadow-sm hover:shadow-md transition-shadow">
-            <div className="w-12 h-12 mx-auto bg-gold/10 text-darkGold rounded-full flex items-center justify-center mb-4 text-xl border border-gold/20">🔍</div>
-            <h3 className="font-bold text-slate-900 mb-2">Detailed Profiles</h3>
-            <p className="text-sm text-slate-600">Click on any profile to see detailed information, contact info, and social links.</p>
-          </div>
+        </section>
 
-          <div className="bg-white/80 backdrop-blur-sm border border-slate-200 p-6 rounded-2xl text-center shadow-sm hover:shadow-md transition-shadow">
-            <div className="w-12 h-12 mx-auto bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mb-4 text-xl border border-emerald-100">🔄</div>
-            <h3 className="font-bold text-slate-900 mb-2">Live Sync</h3>
-            <p className="text-sm text-slate-600">Directory data is managed securely and updates dynamically via Google Forms & Sheets.</p>
-          </div>
-        </div>
-      </section>
-
-      {/* College Heritage & ID Explainer Spotlight */}
-      <section className="max-w-5xl mx-auto px-4 pb-12 sm:pb-16 w-full z-10">
-        <div className="bg-gradient-to-r from-blue-900 to-slate-900 text-white rounded-2xl sm:rounded-3xl p-5 sm:p-7 md:p-8 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-5 sm:gap-6 border border-blue-950">
-          <div className="space-y-2 text-left">
-            <span className="inline-block py-0.5 px-2.5 sm:px-3 rounded-full bg-gold/20 text-gold text-[11px] sm:text-xs font-bold tracking-wider uppercase border border-gold/30">
-              Campus History & Room 153
-            </span>
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-white">
-              Father Tim Building & College ID Guide
+        {/* The college, set as a statement on the ink band */}
+        <section className="section band band--ink" aria-labelledby="heritage-title">
+          <div className="container statement-wrap">
+            <h2 id="heritage-title" className="statement">
+              Our classes met on the ground floor of the Father Tim Building, Room 153.
             </h2>
-            <p className="text-xs sm:text-sm text-slate-300 max-w-xl">
-              Learn about Notre Dame College, our classroom details in Father Tim Building Room 153, the 8-digit roll number breakdown, and campus location.
-            </p>
+            <div className="statement-wrap__row">
+              <p>The college history, the 8 digit roll number explained and the campus map are on one page.</p>
+              <Link className="btn btn--sheet" href="/about-ndc">
+                Read the college guide
+              </Link>
+            </div>
           </div>
-          <Link
-            href="/about-ndc"
-            className="shrink-0 px-5 sm:px-6 py-2.5 sm:py-3 rounded-full bg-gold hover:bg-darkGold text-slate-900 font-bold text-xs sm:text-sm transition shadow-md flex items-center gap-2 self-start md:self-auto"
-          >
-            Read College Guide →
-          </Link>
-        </div>
-      </section>
+        </section>
 
-      {/* Searchable Directory and profile grid */}
-      <ProfileDirectory profiles={profiles} />
-
-      {/* About the Directory */}
-      <section className="max-w-5xl mx-auto px-4 pb-16">
-        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-8 md:p-10">
-
-          <h2 className="text-3xl font-bold text-slate-900 mb-6">
-            About the Notre Dame College Batch 2021 Group A Directory
-          </h2>
-
-          <div className="space-y-6 text-slate-600 leading-8">
-
-            <p>
-              This website is the official public directory for students of
-              <strong> Notre Dame College (NDC), Dhaka</strong>,
-              Batch <strong>2021</strong>,
-              Group <strong>A</strong>.
-              It was created as a community initiative to help classmates reconnect,
-              keep their information updated, and preserve a digital archive of the batch.
-            </p>
-
-            <p>
-              Every student has a dedicated profile page containing publicly shared
-              information such as their name, profile photograph, biography,
-              email address, phone number, and social media links when voluntarily
-              submitted through the official update form.
-            </p>
-
-            <p>
-              The directory is automatically synchronized using Google Forms and
-              Google Sheets, ensuring that updates submitted by students can be
-              reflected quickly while maintaining a single source of truth.
-            </p>
-
+        {/* About */}
+        <section className="section" aria-labelledby="about-title">
+          <div className="container split">
+            <h2 id="about-title">About this directory</h2>
+            <div className="prose">
+              <p>
+                The public directory for students of <strong>Notre Dame College (NDC), Dhaka</strong>, Batch{" "}
+                <strong>2021</strong>, Group <strong>A</strong>. A community project that helps classmates reconnect and
+                keeps a digital archive of the batch.
+              </p>
+              <p>
+                Every student has a profile page with the name, photograph, bio, email, phone and social links they
+                chose to share. Everyone is listed, even before a profile has been filled in.
+              </p>
+              <p>
+                Updates sent through the official form are synced from Google Sheets, so the sheet stays the single
+                source of truth.
+              </p>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section className="max-w-5xl mx-auto px-4 pb-20">
-
-        <h2 className="text-3xl font-bold text-slate-900 mb-8">
-          Frequently Asked Questions about the NDC 2021 Group A Directory
-        </h2>
-
-        <div className="space-y-6">
-
-          <div className="bg-white rounded-2xl border border-slate-200 p-6">
-
-            <h3 className="font-bold text-lg">
-              Who can appear in this directory?
-            </h3>
-
-            <p className="mt-2 text-slate-600">
-              Students of Notre Dame College Batch 2021 Group A.
-            </p>
-
+        {/* Questions */}
+        <section className="section band" aria-labelledby="faq-title">
+          <div className="container split">
+            <h2 id="faq-title">Common questions</h2>
+            <div className="rows">
+              {faq.map((item) => (
+                <div key={item.q}>
+                  <h3>{item.q}</h3>
+                  <p>{item.a}</p>
+                </div>
+              ))}
+            </div>
           </div>
-
-          <div className="bg-white rounded-2xl border border-slate-200 p-6">
-
-            <h3 className="font-bold text-lg">
-              Where does the information come from?
-            </h3>
-
-            <p className="mt-2 text-slate-600">
-              Profile information is submitted voluntarily by students using the official update form.
-            </p>
-
-          </div>
-
-          <div className="bg-white rounded-2xl border border-slate-200 p-6">
-
-            <h3 className="font-bold text-lg">
-              How can I update my profile?
-            </h3>
-
-            <p className="mt-2 text-slate-600">
-              You can submit updated information using the official profile update form.
-            </p>
-
-          </div>
-
-        </div>
-
-      </section>
-
-      <ScrollWrapper />
-      <footer className="bg-white border-t border-slate-200 py-10 mt-auto">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6 mb-5 text-xs font-semibold text-slate-600">
-            <Link href="/" className="hover:text-gold transition">
-              Student Directory
-            </Link>
-            <span>•</span>
-            <Link href="/about-ndc" className="hover:text-gold transition">
-              About NDC & ID System Guide
-            </Link>
-            <span>•</span>
-            <a
-              href="https://ndc.edu.bd/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-gold transition"
-            >
-              Official College Portal ↗
-            </a>
-          </div>
-          <p className="text-sm text-slate-500 mb-3">
-            Built with <span className="font-semibold text-slate-700">Next.js, TypeScript, and Tailwind CSS</span>.
-          </p>
-          <p className="text-sm text-slate-500">
-            Open source project by <a href="https://shahoriar.bd" target="_blank" rel="noopener noreferrer" className="font-bold text-gold hover:text-darkGold transition-colors underline decoration-gold/30 hover:decoration-gold underline-offset-4">Md Al Shahoriar Hossain (62101030)</a>.
-          </p>
-        </div>
-      </footer>
-    </main>
+        </section>
+      </main>
+      <SiteFooter />
+    </>
   );
 }
